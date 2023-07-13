@@ -3,12 +3,14 @@
 #include <string.h>
 #include <stdint.h>
 
-enum { A_COMMAND, C_COMMAND };
+enum { A_COMMAND, C_COMMAND, L_COMMAND };
 
 int get_command_type(char *line)
 {
     if (line[0] == '@')
         return A_COMMAND;
+    else if (line[0] == '(')
+        return L_COMMAND;
     else
         return C_COMMAND;
 }
@@ -22,20 +24,49 @@ void itob(uint16_t num, char *b, int len)
     }
 }
 
-void trans_A_COMMAND(char *line_in, char *line_out)
+void build_A_COMMAND(char *line_in, char *line_out)
 {
     uint16_t i;
 
-    // convert line[1:] to int
-    i = atoi(line_in + 1);
-    
-    // set MSB to 0 if i>32767
-    i = i & 0x7fff;
 
-    // convert i to 15-bit string and save to output
-    itob(i, line_out, 16);
+    i = atoi(line_in + 1);  // convert line[1:] to int
+    i = i & 0x7fff;         // set MSB to 0 if i>32767
+    itob(i, line_out, 16);  // convert i to 15+1-bit string and save to output
 }
 
+int parse_dest(char *dest_command)
+{
+    return 2;
+}
+
+int parse_comp(char *comp_command)
+{
+    return 123;
+}
+
+int parse_jump(char *comp_command)
+{
+    return 7;
+}
+
+void build_C_COMMAND(char *line_in, char *line_out)
+{
+    uint16_t out = 7;
+    int dest, comp, jump;
+    char dest_command[3] = {0};
+    char comp_command[3] = {0};
+    char jump_command[3] = {0};
+
+    dest = parse_dest(dest_command);
+    comp = parse_comp(comp_command);
+    jump = parse_jump(jump_command);
+
+    out = 7; out <<= 7;         // set most signifiant 3 bits to 111
+    out |= comp; out <<= 3;     // set 7 comp bits
+    out |= dest; out <<= 3;     // set 3 dest bits
+    out |= jump;                // set 3 jump bits
+    itob(out, line_out, 16);    // convert to binstring
+}
 
 int main(int argc, char **argv)
 {
@@ -49,9 +80,9 @@ int main(int argc, char **argv)
     char line_in[256];
     char line_out[17] = {0};
     int linecount = 0;
-
-
-    f = fopen(argv[1], "r"); // open file passed as CL arg
+    
+    // open file passed as CL arg
+    f = fopen(argv[1], "r"); 
 
     // check for errors opening file
     if (f == NULL) {
@@ -62,7 +93,7 @@ int main(int argc, char **argv)
     // loop through input file and parse
     while (fgets(line_in, sizeof line_in, f) != NULL) {
         /*
-         * use getline()
+         * consider using getline()
          */
 
         // remove trailing newline or carriage return
@@ -75,14 +106,17 @@ int main(int argc, char **argv)
         
         // do stuff if line not blank
         if (line_in[0] != '\0') {
-            printf("%2d: %5s --> ", ++linecount, line_in);
+
+            printf("%2d: %5s --> ", ++linecount, line_in); // print line_in
+
             switch (get_command_type(line_in)) {
                 case A_COMMAND:
-                    trans_A_COMMAND(line_in, line_out);
-                    printf("%s\n", line_out);
+                    build_A_COMMAND(line_in, line_out); // translate line_in to line_out
+                    printf("%s\n", line_out);           // print line_out
                     break;
                 case C_COMMAND:
-                    printf("C Command!\n");
+                    build_C_COMMAND(line_in, line_out);
+                    printf("%s\n", line_out);
                     break;
             }
         }
