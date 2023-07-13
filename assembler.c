@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 enum { A_COMMAND, C_COMMAND };
 
@@ -12,6 +13,30 @@ int get_command_type(char *line)
         return C_COMMAND;
 }
 
+void itob(uint16_t num, char *b, int len)
+{
+    for (int i=0; i<len; ++i)
+    {
+        b[len-i-1] = ((num & 1) == 1) ? '1' : '0';
+        num >>= 1;
+    }
+}
+
+void trans_A_COMMAND(char *line_in, char *line_out)
+{
+    uint16_t i;
+
+    // convert line[1:] to int
+    i = atoi(line_in + 1);
+    
+    // set MSB to 0 if i>32767
+    i = i & 0x7fff;
+
+    // convert i to 15-bit string and save to output
+    itob(i, line_out, 16);
+}
+
+
 int main(int argc, char **argv)
 {
     // exit if argc is not as expected
@@ -21,9 +46,10 @@ int main(int argc, char **argv)
     }
 
     FILE *f;            
-    //int c;
-    char line[256];
+    char line_in[256];
+    char line_out[17] = {0};
     int linecount = 0;
+
 
     f = fopen(argv[1], "r"); // open file passed as CL arg
 
@@ -33,41 +59,33 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    /*
-    printf("You're opening file %s\n", argv[1]);
-    while ((c = fgetc(f)) != EOF)
-    {
-        printf("%c", c);
-    }
-    */
-
-    while (fgets(line, sizeof line, f) != NULL) {
+    // loop through input file and parse
+    while (fgets(line_in, sizeof line_in, f) != NULL) {
+        /*
+         * use getline()
+         */
 
         // remove trailing newline or carriage return
-        line[strcspn(line, "\n\r")] = '\0';
+        line_in[strcspn(line_in, "\n\r")] = '\0';
 
         // strip comments
-        char *comment_pos = strstr(line, "//");
+        char *comment_pos = strstr(line_in, "//");
         if (comment_pos != NULL)
             *comment_pos = '\0';
         
         // do stuff if line not blank
-        if (line[0] != '\0') {
-            switch (get_command_type(line)) {
+        if (line_in[0] != '\0') {
+            printf("%2d: %s\n", ++linecount, line_in);
+            switch (get_command_type(line_in)) {
                 case A_COMMAND:
-                    printf("A Command!\n");
+                    trans_A_COMMAND(line_in, line_out);
+                    printf("%s\n", line_out);
                     break;
                 case C_COMMAND:
-                    printf("C Command!\n");
+                    printf("C Command! <-- \n");
                     break;
             }
-            printf("%2d: %s\n", ++linecount, line);
         }
-
-
-        // 1: match command type
-        //
-        // 2: based on command type, 
     }
 
     fclose(f);
