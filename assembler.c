@@ -75,14 +75,14 @@ int main(int argc, char **argv)
         
         // do stuff if line not blank
         if (line_in[0] != '\0') {
-            printf("%2d: %s\n", ++linecount, line_in);
+            printf("%2d: %5s --> ", ++linecount, line_in);
             switch (get_command_type(line_in)) {
                 case A_COMMAND:
                     trans_A_COMMAND(line_in, line_out);
                     printf("%s\n", line_out);
                     break;
                 case C_COMMAND:
-                    printf("C Command! <-- \n");
+                    printf("C Command!\n");
                     break;
             }
         }
