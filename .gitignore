@@ -6,3 +6,9 @@
 
 # Unignore directories
 !*/
+
+# Ignore sample_asm/ dir
+sample_asm/
+
+# Ignore old/ dir
+old/
