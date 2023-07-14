@@ -11,6 +11,16 @@ int   dest_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
 char *jump_keys[] = { "JGT", "JEQ", "JGE", "JLT", "JNE", "JLE", "JMP" };
 int   jump_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
 
+char *comp_keys[] = {
+    "0", "1", "-1", "D", "A", "M", "!D", "!A", "!M", "-D", "-A", "-M",
+    "D+1", "A+1", "M+1", "D-1", "A-1", "M-1", "D+A", "D+M", "D-A", "D-M",
+    "A-D", "M-D", "D&A", "D&M", "D|A", "D|M" 
+};
+char  comp_vals[] = {
+    42, 63, 58, 12, 48, 112, 13, 49, 113, 15, 51, 115, 31, 55, 119, 14, 
+    50, 114, 2, 66, 19, 83, 7, 71, 0, 64, 21, 85
+};
+
 int get_command_type(char *line)
 {
     if (line[0] == '@')
