@@ -34,6 +34,30 @@ void build_A_COMMAND(char *line_in, char *line_out)
     itob(i, line_out, 16);  // convert i to 15+1-bit string and save to output
 }
 
+void tokenize(char *line, char *comp, char *dest, char *jump) 
+{
+    char *equal_sign, *semicolon;
+
+    if ((equal_sign = strchr(line, '='))) {
+        *equal_sign = '\0';
+        strcpy(dest, line);
+        strcpy(comp, equal_sign + 1);
+        if ((semicolon = strchr(comp, ';'))) {
+            *semicolon = '\0';
+            strcpy(jump, semicolon + 1);
+        } else {
+            strcpy(jump, "");
+        }
+    } else {
+        semicolon = strchr(line, ';');
+        *semicolon = '\0';
+        strcpy(dest, "");
+        strcpy(comp, line);
+        strcpy(jump, semicolon + 1);
+    }
+}
+
+
 int parse_dest(char *dest_command)
 {
     return 2;
@@ -53,9 +77,11 @@ void build_C_COMMAND(char *line_in, char *line_out)
 {
     uint16_t out = 7;
     int dest, comp, jump;
-    char dest_command[3] = {0};
-    char comp_command[3] = {0};
-    char jump_command[3] = {0};
+    char dest_command[4] = {0};
+    char comp_command[4] = {0};
+    char jump_command[4] = {0};
+
+    tokenize(line_in, comp_command, dest_command, jump_command);
 
     dest = parse_dest(dest_command);
     comp = parse_comp(comp_command);
