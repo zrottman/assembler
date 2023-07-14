@@ -76,17 +76,39 @@ void tokenize(char *line, char *comp, char *dest, char *jump)
 
 int parse_dest(char *dest_command)
 {
-    return 2;
+    int len = sizeof(dest_vals)/sizeof(dest_vals[0]);
+
+    for (int i=0; i<len; ++i) {
+        if (!strcmp(dest_command, dest_keys[i])) {
+            return dest_vals[i];
+        }
+    }
+
+    return 0;
 }
 
 int parse_comp(char *comp_command)
 {
-    return 123;
+    int len = sizeof(comp_vals)/sizeof(comp_vals[0]);
+
+    for (int i=0; i<len; ++i) {
+        if (!strcmp(comp_command, comp_keys[i])) {
+            return comp_vals[i];
+        }
+    }
+    return 0;
 }
 
-int parse_jump(char *comp_command)
+int parse_jump(char *jump_command)
 {
-    return 7;
+    int len = sizeof(jump_vals)/sizeof(jump_vals[0]);
+
+    for (int i=0; i<len; ++i) {
+        if (!strcmp(jump_command, jump_keys[i])) {
+            return jump_vals[i];
+        }
+    }
+    return 0;
 }
 
 void build_C_COMMAND(char *line_in, char *line_out)
