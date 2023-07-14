@@ -61,6 +61,7 @@ void build_C_COMMAND(char *line_in, char *line_out)
     comp = parse_comp(comp_command);
     jump = parse_jump(jump_command);
 
+    // set output bits
     out = 7; out <<= 7;         // set most signifiant 3 bits to 111
     out |= comp; out <<= 3;     // set 7 comp bits
     out |= dest; out <<= 3;     // set 3 dest bits
