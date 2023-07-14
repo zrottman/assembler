@@ -5,6 +5,12 @@
 
 enum { A_COMMAND, C_COMMAND, L_COMMAND };
 
+char *dest_keys[] = { "M", "D", "MD", "A", "AM", "AD", "AMD" };
+int   dest_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
+
+char *jump_keys[] = { "JGT", "JEQ", "JGE", "JLT", "JNE", "JLE", "JMP" };
+int   jump_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
+
 int get_command_type(char *line)
 {
     if (line[0] == '@')
