@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdint.h>
 
+#define MAXLINE 256
+
 enum { A_COMMAND, C_COMMAND, L_COMMAND };
 
 char *dest_keys[] = { "M", "D", "MD", "A", "AM", "AD", "AMD" };
@@ -142,9 +144,10 @@ int main(int argc, char **argv)
     }
 
     FILE *f;            
-    char line_in[256];
+    char line_in[MAXLINE];
     char line_out[17] = {0};
     int linecount = 0;
+    int i, j;
     
     // open file passed as CL arg
     f = fopen(argv[1], "r"); 
@@ -168,11 +171,23 @@ int main(int argc, char **argv)
         char *comment_pos = strstr(line_in, "//");
         if (comment_pos != NULL)
             *comment_pos = '\0';
+
+        // trim leading spaces
+        i = 0; j = 0;
+        while (line_in[i] == ' ' || line_in[i] == '\t')
+            i++;
         
+        if (i > 0) {
+            while (line_in[i] != '\0')
+                line_in[j++] = line_in[i++];
+            line_in[j] = '\0';
+        }
+       
         // do stuff if line not blank
         if (line_in[0] != '\0') {
 
             printf("%2d: %5s --> ", ++linecount, line_in); // print line_in
+            //printf("%2d: (start at %d) %5s --> ", ++linecount, i, line_in); // print line_in
 
             switch (get_command_type(line_in)) {
                 case A_COMMAND:
