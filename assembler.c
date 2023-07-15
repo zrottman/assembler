@@ -164,9 +164,6 @@ int main(int argc, char **argv)
          * consider using getline()
          */
 
-        // remove trailing newline or carriage return
-        line_in[strcspn(line_in, "\n\r")] = '\0';
-
         // strip comments
         char *comment_pos = strstr(line_in, "//");
         if (comment_pos != NULL)
@@ -176,18 +173,19 @@ int main(int argc, char **argv)
         i = 0; j = 0;
         while (line_in[i] == ' ' || line_in[i] == '\t')
             i++;
-        
         if (i > 0) {
             while (line_in[i] != '\0')
                 line_in[j++] = line_in[i++];
             line_in[j] = '\0';
         }
-       
-        // do stuff if line not blank
+        
+        // remove trailing newline or carriage return
+        line_in[strcspn(line_in, "\n\r ")] = '\0';
+
+        // process non-blank lines
         if (line_in[0] != '\0') {
 
-            printf("%2d: %5s --> ", ++linecount, line_in); // print line_in
-            //printf("%2d: (start at %d) %5s --> ", ++linecount, i, line_in); // print line_in
+            printf("%2d: %15s --> ", ++linecount, line_in); // print line_in
 
             switch (get_command_type(line_in)) {
                 case A_COMMAND:
@@ -197,6 +195,9 @@ int main(int argc, char **argv)
                 case C_COMMAND:
                     build_C_COMMAND(line_in, line_out);
                     printf("%s\n", line_out);
+                    break;
+                case L_COMMAND:
+                    printf("\n");
                     break;
             }
         }
