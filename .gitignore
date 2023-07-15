@@ -10,5 +10,6 @@
 # Ignore sample_asm/ dir
 sample_asm/
 
-# Ignore old/ dir
+# Ignore dirs
 old/
+__pycache__/
