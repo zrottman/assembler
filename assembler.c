@@ -153,6 +153,19 @@ void initialize_symbols(LinkedList* symbols)
         append(symbols, create_node(keys[i], nums[i]));
 }
 
+void ltrim(char* line_in)
+{
+    int i, j;
+    i = j = 0;
+    while (line_in[i] == ' ' || line_in[i] == '\t')
+        i++;
+    if (i > 0) {
+        while (line_in[i] != '\0')
+            line_in[j++] = line_in[i++];
+        line_in[j] = '\0';
+    }
+}
+
 int main(int argc, char **argv)
 {
     // exit if argc is not as expected
@@ -180,7 +193,16 @@ int main(int argc, char **argv)
     initialize_symbols(symbols);
     int default_val = 16;
 
-    // loop through input file and parse
+    // PASS 1: parse labels
+    /*
+    while (fgets(line_in, sizeof line_in, f) != NULL) {
+
+
+    }
+    */
+
+    // PASS 2: loop through input file and parse
+    //rewind(f);
     while (fgets(line_in, sizeof line_in, f) != NULL) {
         /*
          * consider using getline()
@@ -192,14 +214,7 @@ int main(int argc, char **argv)
             *comment_pos = '\0';
 
         // trim leading spaces
-        i = 0; j = 0;
-        while (line_in[i] == ' ' || line_in[i] == '\t')
-            i++;
-        if (i > 0) {
-            while (line_in[i] != '\0')
-                line_in[j++] = line_in[i++];
-            line_in[j] = '\0';
-        }
+        ltrim(line_in);
         
         // remove trailing newline or carriage return
         line_in[strcspn(line_in, "\n\r ")] = '\0';
