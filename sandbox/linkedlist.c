@@ -14,9 +14,8 @@ Node* create_node(char* symbol, int val)
 {
     Node* node = malloc(sizeof(Node));
 
-    node->symbol = symbol;
-    //node->symbol = malloc(strlen(symbol) + 1);
-    //strcpy(node->symbol, symbol);
+    node->symbol = malloc(strlen(symbol) + 1);
+    strcpy(node->symbol, symbol);
     node->value = val;
     node->next  = NULL;
 
@@ -46,7 +45,7 @@ void delete_node(Node* head, int target)
     while (head->next != NULL) {
         if (head->next->value == target) {
             tmp = head->next->next;
-            //free(head->next->symbol);
+            free(head->next->symbol);
             free(head->next);
             head->next = tmp; 
             return;
@@ -58,18 +57,13 @@ void delete_node(Node* head, int target)
 int search(Node* head, char* target, int* default_val)
 {
     for (Node* cur = head; cur != NULL; cur = cur->next) {
-        //if (strcmp(cur->symbol, target) == 0)
-        if(cur->symbol == target) {
-            if (strcmp(cur->symbol, target) == 0)
-                printf("Strcmp == 0\n");
-            printf("target '%s' (@%p) == cur->symbol '%s' (@%p)\n", target, target, cur->symbol, cur->symbol);
+        if (strcmp(cur->symbol, target) == 0)
             return cur->value;
-        }
     }
     
-    insert_node(head, create_node(target, (*default_val)++));
+    insert_node(head, create_node(target, *default_val));
 
-    return *default_val;
+    return (*default_val)++;
 }
 
 int main()
