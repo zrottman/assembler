@@ -3,112 +3,144 @@
 #include <string.h>
 
 typedef struct Node {
-    char*        symbol;
-    int          value;
+    char*        key;
+    int          val;
     struct Node* next;
 } Node;
 
-Node* create_node(char* symbol, int val)
-{
-    Node* node = malloc(sizeof(Node));
+typedef struct LinkedList {
+    Node* head;
+    Node* tail;
+    int   len;
+} LinkedList;
 
-    node->symbol = malloc(strlen(symbol) + 1);
-    strcpy(node->symbol, symbol);
-    node->value = val;
+Node* create_node(char* key, int val)
+{
+    Node* node  = malloc(sizeof(Node));
+
+    node->key   = malloc(strlen(key) + 1);
+    strcpy(node->key, key);
+    node->val   = val;
     node->next  = NULL;
 
     return node;
 }
 
-void print_linked_list(Node* head)
+LinkedList* create_linked_list(void)
 {
-    while (head != NULL) {
-        printf("%s[%d] -> ", head->symbol, head->value);
-        head = head->next;
-    }
+    LinkedList* linkedlist = malloc(sizeof(LinkedList));
+    linkedlist->head = NULL;
+    linkedlist->tail = NULL;
+    linkedlist->len  = 0;
+
+    return linkedlist;
+}
+
+void print_linked_list(LinkedList* linkedlist)
+{
+    for (Node* cur = linkedlist->head; cur != NULL; cur = cur->next)
+        printf("%s/%d -> ", cur->key, cur->val);
     printf("\n");
 }
 
-void insert_node(Node* head, Node* new_node)
+int append(LinkedList* linkedlist, Node* new_node)
 {
-    while (head->next != NULL)
-        head = head->next;
-
-    head->next = new_node;
-}
-
-void delete_node(Node* head, char* target)
-{
-    Node* tmp;
-    while (head->next != NULL) {
-        if (strcmp(head->next->symbol, target) == 0) {
-            tmp = head->next->next;
-            free(head->next->symbol);
-            free(head->next);
-            head->next = tmp; 
-            return;
-        }
-        head = head->next;
+    if (linkedlist->head == NULL) {
+        linkedlist->head = linkedlist->tail = new_node;
+    } else {
+        linkedlist->tail->next = new_node;
+        linkedlist->tail = linkedlist->tail->next;
     }
+    return ++linkedlist->len;
 }
 
-int search(Node* head, char* target, int* default_val)
+int search(LinkedList* linkedlist, char* target_key, int* default_val)
 {
-    for (Node* cur = head; cur != NULL; cur = cur->next) {
-        if (strcmp(cur->symbol, target) == 0)
-            return cur->value;
+    for (Node* cur = linkedlist->head; cur != NULL; cur = cur->next) {
+        if (strcmp(cur->key, target_key) == 0)
+            return cur->val;
     }
     
-    insert_node(head, create_node(target, *default_val));
+    append(linkedlist, create_node(target_key, *default_val));
 
     return (*default_val)++;
 }
 
+int delete_node(LinkedList* linkedlist, char* target_key)
+{
+    Node* tmp;
+    for (Node* cur = linkedlist->head; cur->next != NULL; cur = cur->next) {
+        if (strcmp(cur->next->key, target_key) == 0) {
+            tmp = cur->next->next;
+            free(cur->next->key);
+            free(cur->next);
+            cur->next = tmp;
+            return 0;           // return 0 if found
+        }
+    }
+
+    return -1;                  // return -1 if not found
+}
+
 int main()
 {
-    char* symbols[] = { 
+
+    // default key/value pairs for initializing symbols linkedlist
+    char* keys[]    = { 
         "SP", "LCL", "ARG", "THIS", "THAT", "R0", "R1", "R2", "R3", "R4", 
         "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", 
         "R15", "SCREEN", "KBD"
     };
-
-    int nums[]     = {
+    int nums[]      = {
         0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
         11, 12, 13, 14, 15, 16384, 24576
     };
-    
-    int len         = sizeof(nums) / sizeof(nums[0]);
     int default_val = 16;
+    int len         = sizeof(nums) / sizeof(nums[0]);
 
+    // create symbols linked list
+    LinkedList* symbols = create_linked_list();
+
+    // populate linked list with default symbols
+    for (int i=0; i<len; ++i)
+        append(symbols, create_node(keys[i], nums[i]));
+
+    // tests
     int search_res;
     char* target = "THIS";
 
-    Node* head = create_node(symbols[0], nums[0]);
+    printf("symbols length: %d\n", symbols->len);
+    print_linked_list(symbols);
 
-    for (int i = 1; i < len; ++i) {
-        insert_node(head, create_node(symbols[i], nums[i]));
-    }
+    default_val = 16;
 
-    printf("Displaying linked list: ");
-    print_linked_list(head);
+    target = "THIS";
+    search_res = search(symbols, target, &default_val);
+    printf("%s -> %d\n", target, search_res);
 
-    delete_node(head, "R9");
+    target = "my_var";
+    search_res = search(symbols, target, &default_val);
+    printf("%s -> %d\n", target, search_res);
 
-    print_linked_list(head);
+    target = "R9";
+    search_res = search(symbols, target, &default_val);
+    printf("%s -> %d\n", target, search_res);
 
-    search_res = search(head, "THIS", &default_val);
-    printf("Searching for 'THIS': %d\n", search_res);
+    target = "your_var";
+    search_res = search(symbols, target, &default_val);
+    printf("%s -> %d\n", target, search_res);
 
-    search_res = search(head, target, &default_val);
-    printf("Searching for 'THIS': %d\n", search_res);
+    print_linked_list(symbols);
 
-    search_res = search(head, "my_var", &default_val);
-    printf("Searching for 'my_var': %d\n", search_res);
+    target = "R8";
+    search_res = delete_node(symbols, target);
+    printf("Deleted '%s'? %d\n", target, search_res);
 
-    search_res = search(head, "i", &default_val);
-    printf("Searching for 'i': %d\n", search_res);
+    target = "new_Var";
+    search_res = delete_node(symbols, target);
+    printf("Deleted '%s'? %d\n", target, search_res);
 
-    print_linked_list(head);
+    print_linked_list(symbols);
 
     return 0;
 }
