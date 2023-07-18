@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "linkedlist.h"
 
 #define MAXLINE 256
 
@@ -135,6 +136,25 @@ void build_C_COMMAND(char *line_in, char *line_out)
     itob(out, line_out, 16);    // convert to binstring
 }
 
+void initialize_symbols(LinkedList* symbols)
+{
+    // default key/value pairs for initializing symbols linkedlist
+    char* keys[]    = { 
+        "SP", "LCL", "ARG", "THIS", "THAT", "R0", "R1", "R2", "R3", "R4", 
+        "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", 
+        "R15", "SCREEN", "KBD"
+    };
+    int nums[]      = {
+        0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
+        11, 12, 13, 14, 15, 16384, 24576
+    };
+    int len         = sizeof(nums) / sizeof(nums[0]);
+
+    // populate linked list with default symbols
+    for (int i=0; i<len; ++i)
+        append(symbols, create_node(keys[i], nums[i]));
+}
+
 int main(int argc, char **argv)
 {
     // exit if argc is not as expected
@@ -144,10 +164,6 @@ int main(int argc, char **argv)
     }
 
     FILE *f;            
-    char line_in[MAXLINE];
-    char line_out[17] = {0};
-    int linecount = 0;
-    int i, j;
     
     // open file passed as CL arg
     f = fopen(argv[1], "r"); 
@@ -157,6 +173,18 @@ int main(int argc, char **argv)
         printf("Error opening file %s\n", argv[1]);
         return EXIT_FAILURE;
     }
+
+    char line_in[MAXLINE];
+    char line_out[17] = {0};
+    int linecount = 0;
+    int i, j;
+    LinkedList* symbols = create_linked_list();
+    initialize_symbols(symbols);
+    print_linked_list(symbols);
+    printf("\n");
+
+
+    
 
     // loop through input file and parse
     while (fgets(line_in, sizeof line_in, f) != NULL) {
