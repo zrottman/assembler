@@ -43,7 +43,7 @@ void itob(uint16_t num, char *b, int len)
     }
 }
 
-void build_A_COMMAND(char *line_in, char *line_out, LinkedList *symbols, int *default_val)
+void build_A_COMMAND(char *line_in, char *line_out, LinkedList *symbols, int default_val)
 {
     uint16_t i;
 
@@ -194,15 +194,31 @@ int main(int argc, char **argv)
     int default_val = 16;
 
     // PASS 1: parse labels
-    /*
     while (fgets(line_in, sizeof line_in, f) != NULL) {
 
+        // strip comments
+        char *comment_pos = strstr(line_in, "//");
+        if (comment_pos != NULL)
+            *comment_pos = '\0';
 
+        // trim leading spaces
+        ltrim(line_in);
+        
+        // remove trailing newline or carriage return
+        line_in[strcspn(line_in, "\n\r ")] = '\0';
+
+        // add to symbols linkedlist
+        if (get_command_type(line_in) == L_COMMAND) {
+            line_in[strcspn(line_in, ")")] = '\0';
+            search(symbols, line_in + 1, linecount);
+        } else if (line_in[0] != '\0') {
+            linecount++;
+        }
     }
-    */
 
     // PASS 2: loop through input file and parse
-    //rewind(f);
+    rewind(f);
+    linecount = 0;
     while (fgets(line_in, sizeof line_in, f) != NULL) {
         /*
          * consider using getline()
@@ -222,11 +238,11 @@ int main(int argc, char **argv)
         // process non-blank lines
         if (line_in[0] != '\0') {
 
-            printf("%2d: %15s --> ", ++linecount, line_in); // print line_in
+            printf("%2d: %15s --> ", linecount++, line_in); // print line_in
 
             switch (get_command_type(line_in)) {
                 case A_COMMAND:
-                    build_A_COMMAND(line_in, line_out, symbols, &default_val); 
+                    build_A_COMMAND(line_in, line_out, symbols, default_val++); 
                     printf("%s\n", line_out);
                     break;
                 case C_COMMAND:
@@ -234,11 +250,14 @@ int main(int argc, char **argv)
                     printf("%s\n", line_out);
                     break;
                 case L_COMMAND:
+                    linecount--;
                     printf("\n");
                     break;
             }
         }
     }
+
+    print_linked_list(symbols);
 
     fclose(f);
 

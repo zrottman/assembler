@@ -17,7 +17,7 @@ Node*       create_node(char* key, int val);
 LinkedList* create_linked_list(void);
 void        print_linked_list(LinkedList* linkedlist);
 int         append(LinkedList* linkedlist, Node* new_node);
-int         search(LinkedList* linkedlist, char* target_key, int* default_val);
+int         search(LinkedList* linkedlist, char* target_key, int default_val);
 int         delete_node(LinkedList* linkedlist, char* target_key);
 
 #endif // LINKEDLIST_H
