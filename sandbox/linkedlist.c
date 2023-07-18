@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
-
 
 typedef struct Node {
     char*        symbol;
@@ -39,11 +37,11 @@ void insert_node(Node* head, Node* new_node)
     head->next = new_node;
 }
 
-void delete_node(Node* head, int target)
+void delete_node(Node* head, char* target)
 {
     Node* tmp;
     while (head->next != NULL) {
-        if (head->next->value == target) {
+        if (strcmp(head->next->symbol, target) == 0) {
             tmp = head->next->next;
             free(head->next->symbol);
             free(head->next);
@@ -94,7 +92,7 @@ int main()
     printf("Displaying linked list: ");
     print_linked_list(head);
 
-    delete_node(head, 3);
+    delete_node(head, "R9");
 
     print_linked_list(head);
 
