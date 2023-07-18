@@ -43,14 +43,18 @@ void itob(uint16_t num, char *b, int len)
     }
 }
 
-void build_A_COMMAND(char *line_in, char *line_out)
+void build_A_COMMAND(char *line_in, char *line_out, LinkedList *symbols, int *default_val)
 {
     uint16_t i;
 
-
-    i = atoi(line_in + 1);  // convert line[1:] to int
-    i = i & 0x7fff;         // set MSB to 0 if i>32767
-    itob(i, line_out, 16);  // convert i to 15+1-bit string and save to output
+    if ('0' <= line_in[1] && line_in[1] <= '9') { // treat as numerical
+        i = atoi(line_in + 1);  // convert line[1:] to int
+        i = i & 0x7fff;         // set MSB to 0 if i>32767
+        itob(i, line_out, 16);  // convert i to 15+1-bit string and save to output
+    } else {                                      // treat as symbol
+        i = search(symbols, line_in + 1, default_val);
+        itob(i, line_out, 16);
+    }
 }
 
 void tokenize(char *line, char *comp, char *dest, char *jump) 
@@ -180,11 +184,7 @@ int main(int argc, char **argv)
     int i, j;
     LinkedList* symbols = create_linked_list();
     initialize_symbols(symbols);
-    print_linked_list(symbols);
-    printf("\n");
-
-
-    
+    int default_val = 16;
 
     // loop through input file and parse
     while (fgets(line_in, sizeof line_in, f) != NULL) {
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
 
             switch (get_command_type(line_in)) {
                 case A_COMMAND:
-                    build_A_COMMAND(line_in, line_out); // translate line_in to line_out
+                    build_A_COMMAND(line_in, line_out, symbols, &default_val); // translate line_in to line_out
                     printf("%s\n", line_out);           // print line_out
                     break;
                 case C_COMMAND:
