@@ -47,11 +47,13 @@ void build_A_COMMAND(char *line_in, char *line_out, LinkedList *symbols, int *de
 {
     uint16_t i;
 
-    if ('0' <= line_in[1] && line_in[1] <= '9') { // treat as numerical
+    if ('0' <= line_in[1] && line_in[1] <= '9') { 
+        // treat `line_in` as numerical
         i = atoi(line_in + 1);  // convert line[1:] to int
         i = i & 0x7fff;         // set MSB to 0 if i>32767
         itob(i, line_out, 16);  // convert i to 15+1-bit string and save to output
-    } else {                                      // treat as symbol
+    } else {                                      
+        // treat `line_in` as symbol
         i = search(symbols, line_in + 1, default_val);
         itob(i, line_out, 16);
     }
@@ -80,17 +82,13 @@ void tokenize(char *line, char *comp, char *dest, char *jump)
     }
 }
 
-
 int parse_dest(char *dest_command)
 {
     int len = sizeof(dest_vals)/sizeof(dest_vals[0]);
 
-    for (int i=0; i<len; ++i) {
-        if (!strcmp(dest_command, dest_keys[i])) {
+    for (int i=0; i<len; ++i)
+        if (!strcmp(dest_command, dest_keys[i]))
             return dest_vals[i];
-        }
-    }
-
     return 0;
 }
 
@@ -98,11 +96,9 @@ int parse_comp(char *comp_command)
 {
     int len = sizeof(comp_vals)/sizeof(comp_vals[0]);
 
-    for (int i=0; i<len; ++i) {
-        if (!strcmp(comp_command, comp_keys[i])) {
+    for (int i=0; i<len; ++i)
+        if (!strcmp(comp_command, comp_keys[i]))
             return comp_vals[i];
-        }
-    }
     return 0;
 }
 
@@ -110,11 +106,9 @@ int parse_jump(char *jump_command)
 {
     int len = sizeof(jump_vals)/sizeof(jump_vals[0]);
 
-    for (int i=0; i<len; ++i) {
-        if (!strcmp(jump_command, jump_keys[i])) {
+    for (int i=0; i<len; ++i)
+        if (!strcmp(jump_command, jump_keys[i]))
             return jump_vals[i];
-        }
-    }
     return 0;
 }
 
@@ -217,8 +211,8 @@ int main(int argc, char **argv)
 
             switch (get_command_type(line_in)) {
                 case A_COMMAND:
-                    build_A_COMMAND(line_in, line_out, symbols, &default_val); // translate line_in to line_out
-                    printf("%s\n", line_out);           // print line_out
+                    build_A_COMMAND(line_in, line_out, symbols, &default_val); 
+                    printf("%s\n", line_out);
                     break;
                 case C_COMMAND:
                     build_C_COMMAND(line_in, line_out);
