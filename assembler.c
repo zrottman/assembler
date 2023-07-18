@@ -6,7 +6,7 @@
 
 #define MAXLINE 256
 
-enum { A_COMMAND, C_COMMAND, L_COMMAND };
+enum { A_COMMAND, C_COMMAND, L_COMMAND, JUMP, COMP, DEST };
 
 char *dest_keys[] = { "M", "D", "MD", "A", "AM", "AD", "AMD" };
 int   dest_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
@@ -112,6 +112,14 @@ int parse_jump(char *jump_command)
     return 0;
 }
 
+int parse_command(char* command, int command_type)
+{
+    // TODO: consolidate parse_dest, parse_comp, and parse_command functions into
+    //       single parsing function, which will need to to take a command_type
+    //       argument so we know which lookup arrays to refer to (can be an enum)
+    return 0;
+}
+
 void build_C_COMMAND(char *line_in, char *line_out)
 {
     uint16_t out = 7;
@@ -122,7 +130,7 @@ void build_C_COMMAND(char *line_in, char *line_out)
 
     tokenize(line_in, comp_command, dest_command, jump_command);
 
-    dest = parse_dest(dest_command);
+    dest = parse_dest(dest_command); // TODO: consolidate three parse functions into one general parse function
     comp = parse_comp(comp_command);
     jump = parse_jump(jump_command);
 
@@ -195,6 +203,8 @@ int main(int argc, char **argv)
 
     // PASS 1: parse labels
     while (fgets(line_in, sizeof line_in, f) != NULL) {
+        // TODO: refactor line-cleaning functions to avoid redundancies cleaning
+        //       lines on both passes
 
         // strip comments
         char *comment_pos = strstr(line_in, "//");
