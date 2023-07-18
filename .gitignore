@@ -13,3 +13,4 @@ sample_asm/
 # Ignore dirs
 old/
 __pycache__/
+tapes/

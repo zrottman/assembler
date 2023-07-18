@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "linkedlist.h"
 
 #define MAXLINE 256
 
-enum { A_COMMAND, C_COMMAND, L_COMMAND };
+enum { A_COMMAND, C_COMMAND, L_COMMAND, JUMP, COMP, DEST };
 
 char *dest_keys[] = { "M", "D", "MD", "A", "AM", "AD", "AMD" };
 int   dest_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
@@ -42,14 +43,20 @@ void itob(uint16_t num, char *b, int len)
     }
 }
 
-void build_A_COMMAND(char *line_in, char *line_out)
+void build_A_COMMAND(char *line_in, char *line_out, LinkedList *symbols, int default_val)
 {
     uint16_t i;
 
-
-    i = atoi(line_in + 1);  // convert line[1:] to int
-    i = i & 0x7fff;         // set MSB to 0 if i>32767
-    itob(i, line_out, 16);  // convert i to 15+1-bit string and save to output
+    if ('0' <= line_in[1] && line_in[1] <= '9') { 
+        // treat `line_in` as numerical
+        i = atoi(line_in + 1);  // convert line[1:] to int
+        i = i & 0x7fff;         // set MSB to 0 if i>32767
+        itob(i, line_out, 16);  // convert i to 15+1-bit string and save to output
+    } else {                                      
+        // treat `line_in` as symbol
+        i = search(symbols, line_in + 1, default_val);
+        itob(i, line_out, 16);
+    }
 }
 
 void tokenize(char *line, char *comp, char *dest, char *jump) 
@@ -75,17 +82,13 @@ void tokenize(char *line, char *comp, char *dest, char *jump)
     }
 }
 
-
 int parse_dest(char *dest_command)
 {
     int len = sizeof(dest_vals)/sizeof(dest_vals[0]);
 
-    for (int i=0; i<len; ++i) {
-        if (!strcmp(dest_command, dest_keys[i])) {
+    for (int i=0; i<len; ++i)
+        if (!strcmp(dest_command, dest_keys[i]))
             return dest_vals[i];
-        }
-    }
-
     return 0;
 }
 
@@ -93,11 +96,9 @@ int parse_comp(char *comp_command)
 {
     int len = sizeof(comp_vals)/sizeof(comp_vals[0]);
 
-    for (int i=0; i<len; ++i) {
-        if (!strcmp(comp_command, comp_keys[i])) {
+    for (int i=0; i<len; ++i)
+        if (!strcmp(comp_command, comp_keys[i]))
             return comp_vals[i];
-        }
-    }
     return 0;
 }
 
@@ -105,11 +106,17 @@ int parse_jump(char *jump_command)
 {
     int len = sizeof(jump_vals)/sizeof(jump_vals[0]);
 
-    for (int i=0; i<len; ++i) {
-        if (!strcmp(jump_command, jump_keys[i])) {
+    for (int i=0; i<len; ++i)
+        if (!strcmp(jump_command, jump_keys[i]))
             return jump_vals[i];
-        }
-    }
+    return 0;
+}
+
+int parse_command(char* command, int command_type)
+{
+    // TODO: consolidate parse_dest, parse_comp, and parse_command functions into
+    //       single parsing function, which will need to to take a command_type
+    //       argument so we know which lookup arrays to refer to (can be an enum)
     return 0;
 }
 
@@ -123,7 +130,7 @@ void build_C_COMMAND(char *line_in, char *line_out)
 
     tokenize(line_in, comp_command, dest_command, jump_command);
 
-    dest = parse_dest(dest_command);
+    dest = parse_dest(dest_command); // TODO: consolidate three parse functions into one general parse function
     comp = parse_comp(comp_command);
     jump = parse_jump(jump_command);
 
@@ -135,6 +142,38 @@ void build_C_COMMAND(char *line_in, char *line_out)
     itob(out, line_out, 16);    // convert to binstring
 }
 
+void initialize_symbols(LinkedList* symbols)
+{
+    // default key/value pairs for initializing symbols linkedlist
+    char* keys[]    = { 
+        "SP", "LCL", "ARG", "THIS", "THAT", "R0", "R1", "R2", "R3", "R4", 
+        "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", 
+        "R15", "SCREEN", "KBD"
+    };
+    int nums[]      = {
+        0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
+        11, 12, 13, 14, 15, 16384, 24576
+    };
+    int len         = sizeof(nums) / sizeof(nums[0]);
+
+    // populate linked list with default symbols
+    for (int i=0; i<len; ++i)
+        append(symbols, create_node(keys[i], nums[i]));
+}
+
+void ltrim(char* line_in)
+{
+    int i, j;
+    i = j = 0;
+    while (line_in[i] == ' ' || line_in[i] == '\t')
+        i++;
+    if (i > 0) {
+        while (line_in[i] != '\0')
+            line_in[j++] = line_in[i++];
+        line_in[j] = '\0';
+    }
+}
+
 int main(int argc, char **argv)
 {
     // exit if argc is not as expected
@@ -144,10 +183,6 @@ int main(int argc, char **argv)
     }
 
     FILE *f;            
-    char line_in[MAXLINE];
-    char line_out[17] = {0};
-    int linecount = 0;
-    int i, j;
     
     // open file passed as CL arg
     f = fopen(argv[1], "r"); 
@@ -158,7 +193,42 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    // loop through input file and parse
+    char line_in[MAXLINE];
+    char line_out[17] = {0};
+    int linecount = 0;
+    int i, j;
+    LinkedList* symbols = create_linked_list();
+    initialize_symbols(symbols);
+    int default_val = 16;
+
+    // PASS 1: parse labels
+    while (fgets(line_in, sizeof line_in, f) != NULL) {
+        // TODO: refactor line-cleaning functions to avoid redundancies cleaning
+        //       lines on both passes
+
+        // strip comments
+        char *comment_pos = strstr(line_in, "//");
+        if (comment_pos != NULL)
+            *comment_pos = '\0';
+
+        // trim leading spaces
+        ltrim(line_in);
+        
+        // remove trailing newline or carriage return
+        line_in[strcspn(line_in, "\n\r ")] = '\0';
+
+        // add to symbols linkedlist
+        if (get_command_type(line_in) == L_COMMAND) {
+            line_in[strcspn(line_in, ")")] = '\0';
+            search(symbols, line_in + 1, linecount);
+        } else if (line_in[0] != '\0') {
+            linecount++;
+        }
+    }
+
+    // PASS 2: loop through input file and parse
+    rewind(f);
+    linecount = 0;
     while (fgets(line_in, sizeof line_in, f) != NULL) {
         /*
          * consider using getline()
@@ -170,14 +240,7 @@ int main(int argc, char **argv)
             *comment_pos = '\0';
 
         // trim leading spaces
-        i = 0; j = 0;
-        while (line_in[i] == ' ' || line_in[i] == '\t')
-            i++;
-        if (i > 0) {
-            while (line_in[i] != '\0')
-                line_in[j++] = line_in[i++];
-            line_in[j] = '\0';
-        }
+        ltrim(line_in);
         
         // remove trailing newline or carriage return
         line_in[strcspn(line_in, "\n\r ")] = '\0';
@@ -185,23 +248,26 @@ int main(int argc, char **argv)
         // process non-blank lines
         if (line_in[0] != '\0') {
 
-            printf("%2d: %15s --> ", ++linecount, line_in); // print line_in
+            printf("%2d: %15s --> ", linecount++, line_in); // print line_in
 
             switch (get_command_type(line_in)) {
                 case A_COMMAND:
-                    build_A_COMMAND(line_in, line_out); // translate line_in to line_out
-                    printf("%s\n", line_out);           // print line_out
+                    build_A_COMMAND(line_in, line_out, symbols, default_val++); 
+                    printf("%s\n", line_out);
                     break;
                 case C_COMMAND:
                     build_C_COMMAND(line_in, line_out);
                     printf("%s\n", line_out);
                     break;
                 case L_COMMAND:
+                    linecount--;
                     printf("\n");
                     break;
             }
         }
     }
+
+    print_linked_list(symbols);
 
     fclose(f);
 
