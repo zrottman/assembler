@@ -24,6 +24,12 @@ char  comp_vals[] = {
     50, 114, 2, 66, 19, 83, 7, 71, 0, 64, 21, 85
 };
 
+// Function:    get_command_type
+// Description: This function takes in a cleaned line from an .asm file and returns
+//              the instruction type: A-instruction, C-instruction, or L-instruction
+// Parameters:
+//              - line: cleaned .asm line
+// Returns:     Command-type enum
 int get_command_type(char *line)
 {
     if (line[0] == '@')
@@ -34,6 +40,13 @@ int get_command_type(char *line)
         return C_COMMAND;
 }
 
+// Function:    itob
+// Description: Encodes an integer to a bitstring of length `len`
+// Parameters:
+//              num:    16-bit unsigned int to encode
+//              b:      pointer to destination string that will be mutated
+//              len:    length of output bitstring
+// Returns:     void
 void itob(uint16_t num, char *b, int len)
 {
     for (int i=0; i<len; ++i)
@@ -43,6 +56,14 @@ void itob(uint16_t num, char *b, int len)
     }
 }
 
+// Function:    build_A_COMMAND
+// Description: builds 16-bit A-instruction
+// Parameters:
+//              line_in:        pointer to cleaned .asm line to translate to 16-bit encoding
+//              line_out:       pointer to destination string
+//              symbols:        pointer to linked list that handles symbol lookups
+//              default_val:    default value to insert into `symbols` list on insertion
+// Returns:     void
 void build_A_COMMAND(char *line_in, char *line_out, LinkedList *symbols, int default_val)
 {
     uint16_t i;
@@ -59,6 +80,14 @@ void build_A_COMMAND(char *line_in, char *line_out, LinkedList *symbols, int def
     }
 }
 
+// Function:    tokenize
+// Description: Tokenizes cleaned C-instruction line into its three component parts
+// Parameters:
+//              line:   pointer to line to tokenize
+//              comp:   pointer to computation token (mutated by function)
+//              dest:   pointer to destination token (mutated by function)
+//              jump:   pointer to jump token (mutated by function)
+//  Returns:    void
 void tokenize(char *line, char *comp, char *dest, char *jump) 
 {
     char *equal_sign, *semicolon;
@@ -82,6 +111,14 @@ void tokenize(char *line, char *comp, char *dest, char *jump)
     }
 }
 
+// Function:    parse_dest, parse_comp, parse_jump
+// Description: Functions that parse `comp`, `dest`, and `jump` tokens by performing
+//              lookups in relevant parallel arrays.
+// Parameters:
+//              <token>_command:    pointer to token
+// Returns:     The integer value associated with the token in the relevant
+//              lookup table
+// TODO:        Consolidate these three functions into a single `token_lookup` function
 int parse_dest(char *dest_command)
 {
     int len = sizeof(dest_vals)/sizeof(dest_vals[0]);
@@ -112,7 +149,7 @@ int parse_jump(char *jump_command)
     return 0;
 }
 
-int parse_command(char* command, int command_type)
+int token_lookup(char* command, int command_type)
 {
     // TODO: consolidate parse_dest, parse_comp, and parse_command functions into
     //       single parsing function, which will need to to take a command_type
@@ -120,6 +157,15 @@ int parse_command(char* command, int command_type)
     return 0;
 }
 
+// Function:    build_C_COMMAND
+// Description: Builds 16-bit C-instruction and assigns to `line_out`. This function
+//              sets the most significant 3 bits to `1`, then tokenizes the line, then
+//              performs lookups for each token to obtain integer equivalents, then
+//              appends these integer equivalents to `line_out` using bitwise ops.
+// Parameters: 
+//              line_in:    pointer to cleaned .asm input line
+//              line_out:   pointer to 16-character output line
+// Returns:     void
 void build_C_COMMAND(char *line_in, char *line_out)
 {
     uint16_t out = 7;
@@ -142,6 +188,12 @@ void build_C_COMMAND(char *line_in, char *line_out)
     itob(out, line_out, 16);    // convert to binstring
 }
 
+// Function:    initialize_symbols
+// Description: Initializes `symbols` linked list with default symbols key/value
+//              pairs.
+// Parameters:  
+//              symbols:    pointer to linked list
+// Returns:     void
 void initialize_symbols(LinkedList* symbols)
 {
     // default key/value pairs for initializing symbols linkedlist
@@ -161,6 +213,13 @@ void initialize_symbols(LinkedList* symbols)
         append(symbols, create_node(keys[i], nums[i]));
 }
 
+// Function:    ltrim
+// Description: String cleaning function that removes leading spaces and tabs
+//              by shifting non-space characters left and then terminating the 
+//              string.
+// Parameters:
+//              line_in:    pointer to .asm line that will be mutated
+// Returns:     void
 void ltrim(char* line_in)
 {
     int i, j;
@@ -197,9 +256,11 @@ int main(int argc, char **argv)
     char line_out[17] = {0};
     int linecount = 0;
     int i, j;
+
+    // Instantiate linked list
     LinkedList* symbols = create_linked_list();
     initialize_symbols(symbols);
-    int default_val = 16;
+    int default_val = 16; // default starting value for new symbols
 
     // PASS 1: parse labels
     while (fgets(line_in, sizeof line_in, f) != NULL) {
@@ -266,8 +327,6 @@ int main(int argc, char **argv)
             }
         }
     }
-
-    print_linked_list(symbols);
 
     fclose(f);
 
