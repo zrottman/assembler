@@ -64,7 +64,7 @@ void itob(uint16_t num, char *b, int len)
 //              symbols:        pointer to linked list that handles symbol lookups
 //              default_val:    default value to insert into `symbols` list on insertion
 // Returns:     void
-void build_A_COMMAND(char *line_in, char *line_out, LinkedList *symbols, int default_val)
+void build_A_COMMAND(char *line_in, char *line_out, LinkedList *symbols, int *default_val)
 {
     uint16_t i;
 
@@ -75,7 +75,9 @@ void build_A_COMMAND(char *line_in, char *line_out, LinkedList *symbols, int def
         itob(i, line_out, 16);  // convert i to 15+1-bit string and save to output
     } else {                                      
         // treat `line_in` as symbol
-        i = search(symbols, line_in + 1, default_val);
+        i = search(symbols, line_in + 1, *default_val);
+        if (i == *default_val)
+            (*default_val)++;
         itob(i, line_out, 16);
     }
 }
@@ -327,7 +329,7 @@ int main(int argc, char **argv)
 
             switch (get_command_type(line_in)) {
                 case A_COMMAND:
-                    build_A_COMMAND(line_in, line_out, symbols, default_val++); 
+                    build_A_COMMAND(line_in, line_out, symbols, &default_val); 
                     printf("%s\n", line_out);
                     fprintf(fp_out, "%s\n", line_out);
                     break;
