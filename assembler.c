@@ -237,20 +237,34 @@ int main(int argc, char **argv)
 {
     // exit if argc is not as expected
     if (argc != 2) {
-        printf("usage: assembler <path>\n");
+        printf("usage: assembler <read path>\n");
         return EXIT_FAILURE; // macro defined in stdlib.h
     }
 
-    FILE *f;            
+    FILE *fp_in, *fp_out;
     
-    // open file passed as CL arg
-    f = fopen(argv[1], "r"); 
-
-    // check for errors opening file
-    if (f == NULL) {
-        printf("Error opening file %s\n", argv[1]);
+    // open input file passed as CL arg and check for errors
+    fp_in = fopen(argv[1], "r"); 
+    if (fp_in == NULL) {
+        printf("Error opening input file %s\n", argv[1]);
         return EXIT_FAILURE;
     }
+
+    // create output file path, open output file, and check for errors _path by replacing .asm from argv[1] with .hack
+    char out_path[100], *p;
+
+    strcpy(out_path, argv[1]);      // copy argv[1] to out_path
+    p = strrchr(out_path, '.');     // get location of file extension
+    strcpy(p, ".hack\0");           // replace .asm with .hack
+                                    
+    fp_out = fopen(out_path, "w");   // open output file
+    if (fp_in == NULL) {
+        printf("Error opening output file %s\n", argv[1]);
+        return EXIT_FAILURE;
+    }
+
+    // print output file name at top of file
+    //fprintf(fp_out, "//.hack translation of %s\n", argv[1]);
 
     char line_in[MAXLINE];
     char line_out[17] = {0};
@@ -263,7 +277,7 @@ int main(int argc, char **argv)
     int default_val = 16; // default starting value for new symbols
 
     // PASS 1: parse labels
-    while (fgets(line_in, sizeof line_in, f) != NULL) {
+    while (fgets(line_in, sizeof line_in, fp_in) != NULL) {
         // TODO: refactor line-cleaning functions to avoid redundancies cleaning
         //       lines on both passes
 
@@ -288,9 +302,9 @@ int main(int argc, char **argv)
     }
 
     // PASS 2: loop through input file and parse
-    rewind(f);
+    rewind(fp_in);
     linecount = 0;
-    while (fgets(line_in, sizeof line_in, f) != NULL) {
+    while (fgets(line_in, sizeof line_in, fp_in) != NULL) {
         /*
          * consider using getline()
          */
@@ -315,10 +329,12 @@ int main(int argc, char **argv)
                 case A_COMMAND:
                     build_A_COMMAND(line_in, line_out, symbols, default_val++); 
                     printf("%s\n", line_out);
+                    fprintf(fp_out, "%s\n", line_out);
                     break;
                 case C_COMMAND:
                     build_C_COMMAND(line_in, line_out);
                     printf("%s\n", line_out);
+                    fprintf(fp_out, "%s\n", line_out);
                     break;
                 case L_COMMAND:
                     linecount--;
@@ -328,7 +344,11 @@ int main(int argc, char **argv)
         }
     }
 
-    fclose(f);
+    printf("Output file: %s\n", out_path);
+
+    // close input/output files
+    fclose(fp_in);
+    fclose(fp_out);
 
     return 0;
 }
