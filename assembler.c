@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <time.h>
 #include "linkedlist.h"
 
 #define MAXLINE 256
@@ -254,6 +255,10 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
     // create output file path, open output file, and check for errors _path by replacing .asm from argv[1] with .hack
     char out_path[100], *p;
 
@@ -348,11 +353,14 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("Output file: %s\n", out_path);
-
     // close input/output files
     fclose(fp_in);
     fclose(fp_out);
+
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("Output file: %s\n", out_path);
+    printf("Took %f seconds\n", cpu_time_used);
 
     return 0;
 }
