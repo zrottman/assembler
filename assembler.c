@@ -2,27 +2,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <time.h>
 #include "linkedlist.h"
 
 #define MAXLINE 256
 
 enum { A_COMMAND, C_COMMAND, L_COMMAND, JUMP, COMP, DEST };
 
-char *dest_keys[] = { "M", "D", "MD", "A", "AM", "AD", "AMD" };
-int   dest_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
+const char *dest_keys[] = { "M", "D", "MD", "A", "AM", "AD", "AMD" };
+const int   dest_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
 
-char *jump_keys[] = { "JGT", "JEQ", "JGE", "JLT", "JNE", "JLE", "JMP" };
-int   jump_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
+const char *jump_keys[] = { "JGT", "JEQ", "JGE", "JLT", "JNE", "JLE", "JMP" };
+const int   jump_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
 
-char *comp_keys[] = {
+const char *comp_keys[] = {
     "0", "1", "-1", "D", "A", "M", "!D", "!A", "!M", "-D", "-A", "-M",
     "D+1", "A+1", "M+1", "D-1", "A-1", "M-1", "D+A", "D+M", "D-A", "D-M",
     "A-D", "M-D", "D&A", "D&M", "D|A", "D|M" 
 };
-char  comp_vals[] = {
+const char  comp_vals[] = {
     42, 63, 58, 12, 48, 112, 13, 49, 113, 15, 51, 115, 31, 55, 119, 14, 
     50, 114, 2, 66, 19, 83, 7, 71, 0, 64, 21, 85
 };
+
+// Conrad: consider putting all above constants in their own .c file
 
 // Function:    get_command_type
 // Description: This function takes in a cleaned line from an .asm file and returns
@@ -252,6 +255,10 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
     // create output file path, open output file, and check for errors _path by replacing .asm from argv[1] with .hack
     char out_path[100], *p;
 
@@ -346,11 +353,14 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("Output file: %s\n", out_path);
-
     // close input/output files
     fclose(fp_in);
     fclose(fp_out);
+
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("Output file: %s\n", out_path);
+    printf("Took %f seconds\n", cpu_time_used);
 
     return 0;
 }
