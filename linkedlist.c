@@ -80,8 +80,7 @@ int append(LinkedList* linkedlist, Node* new_node)
 int search(LinkedList* linkedlist, char* target_key, int default_val)
 {
     for (Node* cur = linkedlist->head; cur != NULL; cur = cur->next) {
-        if (strcmp(cur->key, target_key) == 0)
-            return cur->val;
+        if (strcmp(cur->key, target_key) == 0) return cur->val;
     }
     
     append(linkedlist, create_node(target_key, default_val));
