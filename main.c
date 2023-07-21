@@ -258,6 +258,21 @@ void cleanline(char *line_in)
         line_in[strcspn(line_in, "\n\r ")] = '\0';
 }
 
+// Function:    make_output_path
+// Description: Generates path to output file.
+// Parameters:
+//              in_path:    input file path for .asm file
+//              out_path:   output file path replacing .asm with .hack
+// Returns:     void
+void make_output_path(char *out_path, char *in_path)
+{
+    char *p;
+
+    strcpy(out_path, in_path);      // copy argv[1] to out_path
+    p = strrchr(out_path, '.');     // get location of file extension
+    strcpy(p, ".hack\0");           // replace .asm with .hack
+}
+
 
 int main(int argc, char **argv)
 {
@@ -276,18 +291,17 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+    // clock
     clock_t start, end;
     double cpu_time_used;
     start = clock();
 
     // create output file path, open output file, and check for errors _path by replacing .asm from argv[1] with .hack
-    char out_path[100], *p;
+    char out_path[100]; //, *p;
+    make_output_path(out_path, argv[1]);
 
-    strcpy(out_path, argv[1]);      // copy argv[1] to out_path
-    p = strrchr(out_path, '.');     // get location of file extension
-    strcpy(p, ".hack\0");           // replace .asm with .hack
-                                    
-    fp_out = fopen(out_path, "w");   // open output file
+    // open output file
+    fp_out = fopen(out_path, "w");
     if (fp_in == NULL) {
         printf("Error opening output file %s\n", argv[1]);
         return EXIT_FAILURE;
