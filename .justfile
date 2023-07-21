@@ -10,3 +10,9 @@ test project:
 assemble_and_test project:
     just assemble {{project}}
     just test {{project}}
+
+doitall project:
+    just compile
+    just assemble {{project}}
+    just test {{project}}
+    
