@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <time.h>
 #include "linkedlist.h"
+#include "parser.h"
 
 #define MAXLINE 256
 
