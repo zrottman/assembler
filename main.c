@@ -238,6 +238,27 @@ void ltrim(char* line_in)
     }
 }
 
+// Function:   cleanline
+// Decription: Function to clean entire input line: strips comments, trims
+//             leading spaces, removes trailing spaces/newlines/CRs
+// Parameters: 
+//             line_in:     pointer to .asm line that will be mutated
+// Returns:    void
+void cleanline(char *line_in)
+{
+        // strip comments
+        char *comment_pos = strstr(line_in, "//");
+        if (comment_pos != NULL)
+            *comment_pos = '\0';
+
+        // trim leading spaces
+        ltrim(line_in);
+        
+        // remove trailing newline or carriage return
+        line_in[strcspn(line_in, "\n\r ")] = '\0';
+}
+
+
 int main(int argc, char **argv)
 {
     // exit if argc is not as expected
@@ -287,19 +308,9 @@ int main(int argc, char **argv)
 
     // PASS 1: parse labels
     while (fgets(line_in, sizeof line_in, fp_in) != NULL) {
-        // TODO: refactor line-cleaning functions to avoid redundancies cleaning
-        //       lines on both passes
-
-        // strip comments
-        char *comment_pos = strstr(line_in, "//");
-        if (comment_pos != NULL)
-            *comment_pos = '\0';
-
-        // trim leading spaces
-        ltrim(line_in);
         
-        // remove trailing newline or carriage return
-        line_in[strcspn(line_in, "\n\r ")] = '\0';
+        // strip comments and trim
+        cleanline(line_in);
 
         // add to symbols linkedlist
         if (get_command_type(line_in) == L_COMMAND) {
@@ -318,16 +329,8 @@ int main(int argc, char **argv)
          * consider using getline()
          */
 
-        // strip comments
-        char *comment_pos = strstr(line_in, "//");
-        if (comment_pos != NULL)
-            *comment_pos = '\0';
-
-        // trim leading spaces
-        ltrim(line_in);
-        
-        // remove trailing newline or carriage return
-        line_in[strcspn(line_in, "\n\r ")] = '\0';
+        // strip comments and trim
+        cleanline(line_in);
 
         // process non-blank lines
         if (line_in[0] != '\0') {
