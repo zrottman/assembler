@@ -1,5 +1,5 @@
 compile:
-    cc main.c linkedlist.c -o assembler
+    cc main.c linkedlist.c parser.c -o assembler
 
 assemble project:
     find sample_asm -name "{{project}}.asm" -type f -exec ./assembler {} \;
