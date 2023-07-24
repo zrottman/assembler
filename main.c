@@ -12,6 +12,7 @@
 
 const char *dest_keys[] = { "M", "D", "MD", "A", "AM", "AD", "AMD" };
 const int   dest_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
+// can include const keyword in function declarations to make clear that it's read-only
 
 const char *jump_keys[] = { "JGT", "JEQ", "JGE", "JLT", "JNE", "JLE", "JMP" };
 const int   jump_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
@@ -154,6 +155,8 @@ void build_C_COMMAND(char *line_in, char *line_out)
 // Parameters:  
 //              symbols:    pointer to linked list
 // Returns:     void
+// TODO:        consider making struct that contains key and num as members,
+//              then make one array instead of two to loop through
 void initialize_symbols(LinkedList* symbols)
 {
     // default key/value pairs for initializing symbols linkedlist
@@ -185,7 +188,7 @@ void ltrim(char* line_in)
 {
     int i, j;
     i = j = 0;
-    while (line_in[i] == ' ' || line_in[i] == '\t')
+    while (line_in[i] == ' ' || line_in[i] == '\t') // check for a string.h function that looks for whitespace
         i++;
     if (i > 0) {
         while (line_in[i] != '\0')
