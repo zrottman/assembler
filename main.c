@@ -27,6 +27,7 @@ const char  comp_vals[] = {
 };
 
 // Conrad: consider putting all above constants in their own .c file
+// Aaron: handle parallel arrays to distinct struct
 
 // Function:    itob
 // Description: Encodes an integer to a bitstring of length `len`
@@ -179,6 +180,7 @@ void initialize_symbols(LinkedList* symbols)
 // Parameters:
 //              line_in:    pointer to .asm line that will be mutated
 // Returns:     void
+// TODO:       consider using reallocate
 void ltrim(char* line_in)
 {
     int i, j;
@@ -276,6 +278,8 @@ int main(int argc, char **argv)
 
     // PASS 1: parse labels
     while (fgets(line_in, sizeof line_in, fp_in) != NULL) {
+
+        // TODO: parse_label(line_in, &linecount) <-- start refactoring like this
         
         // strip comments and trim
         cleanline(line_in);
@@ -296,6 +300,10 @@ int main(int argc, char **argv)
         /*
          * consider using getline()
          */
+        
+        // TODO: parse_instruction(line_in, ...)
+        //      line_out could be inside here ^, maybe default val too
+        //
 
         // strip comments and trim
         cleanline(line_in);
