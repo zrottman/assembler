@@ -2,6 +2,8 @@
 
 An assembler! Converts assembler language to 16-bit machine code.
 
+![Assembler in action](resources/assembler.gif)
+
 ## Hack Spec
 
 This program assembles Hack, a simple assembly language from *The Elements of Computing Systems* (aka *Nand to Tetris*). Hack comprises of three kinds of instructions:
