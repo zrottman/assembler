@@ -9,73 +9,11 @@ This program assembles Hack, a simple assembly language from *The Elements of Co
 - **C(ompute) instructions** begin with either a destination or computation code and tell the CPU which registers to read from, what to do with those values, where to store the result, and whether to jump elsewhere in the code.
 - **L(abel) instructions** are enclosed in parentheses. These are pseudocommands since they are used to label line numbers to enable jumping, but they are not themselves converted into assembly.
 
-<style type="text/css">
-  table, tr, td {
-    border: none;
-    text-align: center;
-  }
-
-  .array td {
-    border: 1px solid black;
-    /*background-color: white;*/
-    width: 30px;
-    height: 30px;
-  }
-
-  .bitsPlace { color: gray; }
-
-  .i { background: #d3f6db; }
-  .a { background: #92d5e6; }
-  .c { background: #772d8b; color: #ccc; }
-  .d { background: #5a0b4d; color: #ccc; }
-  .j { background: #a1ef8b; }
-
-</style>
-
 ### A Instructions
 
-**A(ddress) instructions** are the simplest, since converting them to 16-bit machine code instructions is a matter of converting the number to a 15-bit integer and appending a `0` on the front, which is what identifies the instruction as an A Instruction.
+![A instruction](resources/assembler-a.jpg)
 
-<table>
-  <tr class='array'>
-    <td class="i">0</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-    <td>v</td>
-  </tr>
-  <tr class='bitsPlace'>
-    <td>15</td>
-    <td>14</td>
-    <td>13</td>
-    <td>12</td>
-    <td>11</td>
-    <td>10</td>
-    <td>9</td>
-    <td>8</td>
-    <td>7</td>
-    <td>6</td>
-    <td>5</td>
-    <td>4</td>
-    <td>3</td>
-    <td>2</td>
-    <td>1</td>
-    <td>0</td>
-  </tr>
-</table>
-
-- <span class="i">the most significant bit</span> (set to 0) identifies the instruction as an A instruction
+- the most significant bit</span> (set to 0) identifies the instruction as an A instruction
 - the least significant 15 bits represent a 15-bit unsigned integer
 
 ### C Instructions
@@ -85,51 +23,14 @@ This program assembles Hack, a simple assembly language from *The Elements of Co
 - everything to the right of the `=` and to the left of the `;` is the computation command -- i.e., what computation the ALU performs on its inputs. (**M+1** is the computation in the command `D=M+1`.) There are a lot of options here, so this piece of information gets encoded as a 7-bit sequence and spans bits 6-12 of the resulting instruction string.
 - everything right of the `;` is the jump command, which, if present, loads the value in the A Register (in this case representing a program line number) into the Program Counter, thus "jumping" to another line in the program. (**JGT** specifies the jump in the command `D;JGT`.) This piece of information gets encoded as a 3-bit sequence and spans bits 0-2 in the resulting instruction string.
 
-<table>
-  <tr class='array'>
-    <td class="i">1</td>
-    <td>x</td>
-    <td>x</td>
-    <td class="a">a</td>
-    <td class="c">c</td>
-    <td class="c">c</td>
-    <td class="c">c</td>
-    <td class="c">c</td>
-    <td class="c">c</td>
-    <td class="c">c</td>
-    <td class="d">d</td>
-    <td class="d">d</td>
-    <td class="d">d</td>
-    <td class="j">j</td>
-    <td class="j">j</td>
-    <td class="j">j</td>
-  </tr>
-  <tr class='bitsPlace'>
-    <td>15</td>
-    <td>14</td>
-    <td>13</td>
-    <td>12</td>
-    <td>11</td>
-    <td>10</td>
-    <td>9</td>
-    <td>8</td>
-    <td>7</td>
-    <td>6</td>
-    <td>5</td>
-    <td>4</td>
-    <td>3</td>
-    <td>2</td>
-    <td>1</td>
-    <td>0</td>
-  </tr>
-</table>
+![C instruction](resources/assembler-c.jpg)
 
-- <span class="i">the most significant bit</span> (set to 1) identifies the instruction as a C Instruction
+- the most significant bit (set to 1) identifies the instruction as a C Instruction
 - bits 13 and 14 aren't used
-- <span class="a">the <b>a</b> bit</span> (bit 12) dictates whether the ALU should accept its `y` input from the A Register or from somewhere in memory. This is effectively part of the computation instruction.
-- <span class="c">the 6 <b>c</b> bits</span> (bits 6-11) specify the ALU function and are fed into its 6 function inputs `zx`, `nx`, `zy`, `ny`, `f`, and `no`.
-- <span class="d">the 3 <b>d</b> bits</span> (bits 3-5) specify the destination for the ALU's output, either `M` (memory), `A` (A register), or `D` (D register), or some combination of the three.
-- <span class="j">the 3 <b>j</b> bits</span> (bits 0-2) specify any jump command based on whether the ALU's output is `< 0`, `<= 0`, `== 0`, `>= 0`, or `> 0`.
+- the a bit (bit 12) dictates whether the ALU should accept its `y` input from the A Register or from somewhere in memory. This is effectively part of the computation instruction.
+- the 6 c bits (bits 6-11) specify the ALU function and are fed into its 6 function inputs `zx`, `nx`, `zy`, `ny`, `f`, and `no`.
+- the 3 d bits (bits 3-5) specify the destination for the ALU's output, either `M` (memory), `A` (A register), or `D` (D register), or some combination of the three.
+- the 3 j bits (bits 0-2) specify any jump command based on whether the ALU's output is `< 0`, `<= 0`, `== 0`, `>= 0`, or `> 0`.
 
 The binary encodings for each of these component parts are as follows:
 
