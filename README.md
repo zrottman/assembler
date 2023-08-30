@@ -395,46 +395,36 @@ Here's an example of how you could use the assembler to translate an assembly fi
 After running this command, you will find the assembled machine code in a file named "example.hack" in the same directory.
 
 ```
-// sample input
-@R0
-D=M
-@R1
-D=D-M
-@OUTPUT_FIRST
-D;JGT
-@R1
-D=M
-@OUTPUT_D
-0;JMP
-(OUTPUT_FIRST)
-@R0
-D=M
-(OUTPUT_D)
-@R2
-M=D
-(INFINITE_LOOP)
-@INFINITE_LOOP
-0;JMP
-```
-
-```
-// sample output
-0000000000000000
-1111110000010000
-0000000000000001
-1111010011010000
-0000000000001010
-1110001100000001
-0000000000000001
-1111110000010000
-0000000000001100
-1110101010000111
-0000000000000000
-1111110000010000
-0000000000000010
-1110001100001000
-0000000000001110
-1110101010000111
+> ./assembler path/to/Rect.asm
+ 0:              @0 --> 0000000000000000
+ 1:             D=M --> 1111110000010000
+ 2:  @INFINITE_LOOP --> 0000000000010111
+ 3:           D;JLE --> 1110001100000110
+ 4:        @counter --> 0000000000010000
+ 5:             M=D --> 1110001100001000
+ 6:         @SCREEN --> 0100000000000000
+ 7:             D=A --> 1110110000010000
+ 8:        @address --> 0000000000010001
+ 9:             M=D --> 1110001100001000
+10:          (LOOP) -->
+10:        @address --> 0000000000010001
+11:             A=M --> 1111110000100000
+12:            M=-1 --> 1110111010001000
+13:        @address --> 0000000000010001
+14:             D=M --> 1111110000010000
+15:             @32 --> 0000000000100000
+16:           D=D+A --> 1110000010010000
+17:        @address --> 0000000000010001
+18:             M=D --> 1110001100001000
+19:        @counter --> 0000000000010000
+20:          MD=M-1 --> 1111110010011000
+21:           @LOOP --> 0000000000001010
+22:           D;JGT --> 1110001100000001
+23: (INFINITE_LOOP) -->
+23:  @INFINITE_LOOP --> 0000000000010111
+24:           0;JMP --> 1110101010000111
+Output file: path/to/Rect.hack
+Took 0.001327 seconds
 ```
 
 ## Misc.
