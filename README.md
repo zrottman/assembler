@@ -360,6 +360,22 @@ The first pass identifies L Instructions and adds them to a symbols table with a
 
 The second pass handles A and C instructions. When symbols are encountered, these are added to the symbols table with an arbitrarily assigned memory address such that each symbol corresponds to a unique address.
 
+## Symbol/Label Lookups
+
+An assembler must maintain a list of symbols, both for A Instructions and L Instructions.
+
+During the first pass, if the assembler encountered an L Instruction -- e.g., `(MY_LABEL)` -- it will insert this label into the symbols table as a key with the corresponding line number as its matching value. When the assembler encounters a label on its second pass, it need only look up `MY_LABEL` in the symbols table to access its matching value (which, in the case of labels, corresponds to a line number for use in jump instructions).
+
+A similar process occurs when the assembler encounters symbols in A Instructions. For instance, if the assembler reads in a line like `@my_var`, it will attempt to look that symbol up in a symbols table to find the corresponding value (in this case, a memory location).  If `my_var` does not exist in the symbols table, then it is arbitrarily assigned an unused address location.
+
+To handle lookups, this assembler implementation uses a linked list, whose nodes have key/value pair members. When the assembler encounters a label on its first pass, it appends that label and corresponding line number to the symbols linked list (a constant time operation, since the linked list struct holds a reference to both head and tail nodes). When the assembler encounters labels or symbols on its second pass, it performs a linear time lookup. If found, the matching value is returned, otherwise a new node is appended to the end of the linked list.
+
+A proper hash table with constant time lookups would be more performant -- I plan to implement this functionality in a future version.
+
+## C Instruction Lookups
+
+The assembler must also be able to convert C Instruction tokens to their corresponding integer codes. For instance, destination command `MD` corresponds to `3` (`0b011`), and the computation commany `A+1` corresponds to `55` (`0b0110111`). To handle lookups for destination, jump, and computation instrutions, this assmbler implementation utilizes parallel arrays to hold key/value pairs. In practice, this involves linear time lookups, however the performance hit is nominal since these arrays are small and constant size.
+
 ## Usage
 
 ### 1. Compilation:
