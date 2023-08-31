@@ -7,6 +7,9 @@
 # Unignore directories
 !*/
 
+# Unignore makefile
+!makefile
+
 # Ignore sample_asm/ dir
 sample_asm/
 
