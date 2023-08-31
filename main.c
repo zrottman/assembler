@@ -9,15 +9,6 @@
 
 #define MAXLINE 256
 
-int token_lookup(char* command, int command_type)
-{
-    // TODO: consolidate parse_dest, parse_comp, and parse_command functions into
-    //       single parsing function, which will need to to take a command_type
-    //       argument so we know which lookup arrays to refer to (can be an enum)
-    return 0;
-}
-
-
 // Function:    make_output_path
 // Description: Generates path to output file.
 // Parameters:
@@ -73,11 +64,9 @@ int main(int argc, char **argv)
     char line_out[17] = {0};
     int linecount;
 
-    // instantiate linked list
-    LinkedList* symbols = create_linked_list();
-    initialize_symbols(symbols);
+    // instantiate symbols table
+    SymbolTable* symbols = create_symbols_table();
     int default_val = 16; // default starting value for new symbols
-
 
     // pass 1: parse labels
     linecount = 0;

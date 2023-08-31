@@ -58,6 +58,17 @@ int parse_jump(char *jump_command)
     return 0;
 }
 
+/*
+int token_lookup(char* command, int command_type)
+{
+    // TODO: consolidate parse_dest, parse_comp, and parse_command functions into
+    //       single parsing function, which will need to to take a command_type
+    //       argument so we know which lookup arrays to refer to (can be an enum)
+    return 0;
+}
+*/
+
+
 // Function:    build_C_COMMAND
 // Description: Builds 16-bit C-instruction and assigns to `line_out`. This function
 //              sets the most significant 3 bits to `1`, then tokenizes the line, then
@@ -93,7 +104,7 @@ void build_C_COMMAND(char *comp_command, char *dest_command, char *jump_command,
 //              symbols:        pointer to linked list that handles symbol lookups
 //              default_val:    default value to insert into `symbols` list on insertion
 // Returns:     void
-void build_A_COMMAND(char *line_in, char *line_out, LinkedList *symbols, int *default_val)
+void build_A_COMMAND(char *line_in, char *line_out, SymbolTable *symbols, int *default_val)
 {
     uint16_t i;
 

@@ -52,7 +52,7 @@ void tokenize(char *line, char *comp, char *dest, char *jump)
     }
 }
 
-void parse_label(char* line_in, LinkedList *symbols, int *linecount) {
+void parse_label(char* line_in, SymbolTable *symbols, int *linecount) {
         // strip comments and trim
         cleanline(line_in);
 
@@ -106,7 +106,7 @@ void cleanline(char *line_in)
         line_in[strcspn(line_in, "\n\r ")] = '\0';
 }
 
-void parse_instruction(char* line_in, LinkedList *symbols, char *line_out, int *default_val, int *linecount, FILE *fp_out)
+void parse_instruction(char* line_in, SymbolTable *symbols, char *line_out, int *default_val, int *linecount, FILE *fp_out)
 {
     char dest_command[4] = {0};
     char comp_command[4] = {0};

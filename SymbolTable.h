@@ -7,18 +7,20 @@ typedef struct Node {
     struct Node* next;
 } Node;
 
-typedef struct LinkedList {
-    Node* head;
-    Node* tail;
-    int   len;
-} LinkedList;
+typedef struct SymbolTable {
+    Node*  head;
+    Node*  tail;
+    size_t len;
+    size_t default_val;
+} SymbolTable;
 
 Node*       create_node(char* key, int val);
-LinkedList* create_linked_list(void);
-void        print_linked_list(LinkedList* linkedlist);
-int         append(LinkedList* linkedlist, Node* new_node);
-int         search(LinkedList* linkedlist, char* target_key, int default_val);
-int         delete_node(LinkedList* linkedlist, char* target_key);
-void        initialize_symbols(LinkedList* symbols);
+SymbolTable* create_linked_list(void);
+SymbolTable* create_symbols_table(void);
+void        print_linked_list(SymbolTable* linkedlist);
+int         append(SymbolTable* linkedlist, Node* new_node);
+int         search(SymbolTable* linkedlist, char* target_key, int default_val);
+int         delete_node(SymbolTable* linkedlist, char* target_key);
+void        initialize_symbols(SymbolTable* symbols);
 
 #endif // SYMBOLTABLE_H

@@ -21,27 +21,29 @@ Node* create_node(char* key, int val)
     return node;
 }
 
-// Function:    create_linked_list
-// Description: Creates empty LinkedList struct (a wrapper struct that maintains
+// Function:    create_symbols_table
+// Description: Creates empty SymbolTable struct (a wrapper struct that maintains
 //              pointers to head and tail as well as a length count).
 // Parameters:  void
-// Returns:     LinkedList* pointer to newly created linked list. 
-LinkedList* create_linked_list(void)
+// Returns:     SymbolTable* pointer to newly created linked list. 
+SymbolTable* create_symbols_table(void)
 {
-    LinkedList* linkedlist = malloc(sizeof(LinkedList));
-    linkedlist->head = NULL;
-    linkedlist->tail = NULL;
-    linkedlist->len  = 0;
-
-    return linkedlist;
+    SymbolTable* symbols = malloc(sizeof(SymbolTable));
+    symbols->head        = NULL;
+    symbols->tail        = NULL;
+    symbols->len         = 0;
+    symbols->default_val = 16;
+    initialize_symbols(symbols);
+    return symbols;
 }
+
 
 // Function:    print_linked_list
 // Description: Prints linked list to stdout
 // Parameters:
 //              linkedlist: pointer to linked list to print
 // Returns:     void
-void print_linked_list(LinkedList* linkedlist)
+void print_linked_list(SymbolTable* linkedlist)
 {
     for (Node* cur = linkedlist->head; cur != NULL; cur = cur->next)
         printf("%s/%d -> ", cur->key, cur->val);
@@ -56,7 +58,7 @@ void print_linked_list(LinkedList* linkedlist)
 //              linkedlist: pointer to linked list
 //              new_node:   pointer to node to append to linked list
 // Returns:     int new length of linked list.
-int append(LinkedList* linkedlist, Node* new_node)
+int append(SymbolTable* linkedlist, Node* new_node)
 {
     if (linkedlist->head == NULL) {
         linkedlist->head = linkedlist->tail = new_node;
@@ -77,7 +79,7 @@ int append(LinkedList* linkedlist, Node* new_node)
 //              default_val:    integer value to assign in event that target_key
 //                              is not found and new node is appeneded.
 // Returns:     int value matching target_key
-int search(LinkedList* linkedlist, char* target_key, int default_val)
+int search(SymbolTable* linkedlist, char* target_key, int default_val)
 {
     for (Node* cur = linkedlist->head; cur != NULL; cur = cur->next) {
         if (strcmp(cur->key, target_key) == 0) return cur->val;
@@ -95,7 +97,7 @@ int search(LinkedList* linkedlist, char* target_key, int default_val)
 //              target_key: pointer to string to match
 // Returns:     0 on success; -1 if node not found
 // Note:        Does not currently support head deletions. TODO.
-int delete_node(LinkedList* linkedlist, char* target_key)
+int delete_node(SymbolTable* linkedlist, char* target_key)
 {
     Node* tmp;
     for (Node* cur = linkedlist->head; cur->next != NULL; cur = cur->next) {
@@ -119,7 +121,7 @@ int delete_node(LinkedList* linkedlist, char* target_key)
 // Returns:     void
 // TODO:        consider making struct that contains key and num as members,
 //              then make one array instead of two to loop through
-void initialize_symbols(LinkedList* symbols)
+void initialize_symbols(SymbolTable* symbols)
 {
     // default key/value pairs for initializing symbols linkedlist
     char* keys[]    = { 
