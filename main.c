@@ -3,112 +3,11 @@
 #include <string.h>
 #include <stdint.h>
 #include <time.h>
-#include "linkedlist.h"
-#include "parser.h"
+#include "SymbolTable.h"
+#include "Parser.h"
+#include "Code.h"
 
 #define MAXLINE 256
-
-//enum { A_COMMAND, C_COMMAND, L_COMMAND, JUMP, COMP, DEST };
-
-const char *dest_keys[] = { "M", "D", "MD", "A", "AM", "AD", "AMD" };
-const int   dest_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
-// can include const keyword in function declarations to make clear that it's read-only
-
-const char *jump_keys[] = { "JGT", "JEQ", "JGE", "JLT", "JNE", "JLE", "JMP" };
-const int   jump_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
-
-const char *comp_keys[] = {
-    "0", "1", "-1", "D", "A", "M", "!D", "!A", "!M", "-D", "-A", "-M",
-    "D+1", "A+1", "M+1", "D-1", "A-1", "M-1", "D+A", "D+M", "D-A", "D-M",
-    "A-D", "M-D", "D&A", "D&M", "D|A", "D|M" 
-};
-const char  comp_vals[] = {
-    42, 63, 58, 12, 48, 112, 13, 49, 113, 15, 51, 115, 31, 55, 119, 14, 
-    50, 114, 2, 66, 19, 83, 7, 71, 0, 64, 21, 85
-};
-
-// Conrad: consider putting all above constants in their own .c file
-// Aaron: handle parallel arrays to distinct struct
-
-// Function:    itob
-// Description: Encodes an integer to a bitstring of length `len`
-// Parameters:
-//              num:    16-bit unsigned int to encode
-//              b:      pointer to destination string that will be mutated
-//              len:    length of output bitstring
-// Returns:     void
-void itob(uint16_t num, char *b, int len)
-{
-    for (int i=0; i<len; ++i)
-    {
-        b[len-i-1] = ((num & 1) == 1) ? '1' : '0';
-        num >>= 1;
-    }
-}
-
-// Function:    build_A_COMMAND
-// Description: builds 16-bit A-instruction
-// Parameters:
-//              line_in:        pointer to cleaned .asm line to translate to 16-bit encoding
-//              line_out:       pointer to destination string
-//              symbols:        pointer to linked list that handles symbol lookups
-//              default_val:    default value to insert into `symbols` list on insertion
-// Returns:     void
-void build_A_COMMAND(char *line_in, char *line_out, LinkedList *symbols, int *default_val)
-{
-    uint16_t i;
-
-    if ('0' <= line_in[1] && line_in[1] <= '9') { 
-        // treat `line_in` as numerical
-        i = atoi(line_in + 1);  // convert line[1:] to int
-        i = i & 0x7fff;         // set MSB to 0 if i>32767
-        itob(i, line_out, 16);  // convert i to 15+1-bit string and save to output
-    } else {                                      
-        // treat `line_in` as symbol
-        i = search(symbols, line_in + 1, *default_val);
-        if (i == *default_val)
-            (*default_val)++;
-        itob(i, line_out, 16);
-    }
-}
-
-// Function:    parse_dest, parse_comp, parse_jump
-// Description: Functions that parse `comp`, `dest`, and `jump` tokens by performing
-//              lookups in relevant parallel arrays.
-// Parameters:
-//              <token>_command:    pointer to token
-// Returns:     The integer value associated with the token in the relevant
-//              lookup table
-// TODO:        Consolidate these three functions into a single `token_lookup` function
-int parse_dest(char *dest_command)
-{
-    int len = sizeof(dest_vals)/sizeof(dest_vals[0]);
-
-    for (int i=0; i<len; ++i)
-        if (!strcmp(dest_command, dest_keys[i]))
-            return dest_vals[i];
-    return 0;
-}
-
-int parse_comp(char *comp_command)
-{
-    int len = sizeof(comp_vals)/sizeof(comp_vals[0]);
-
-    for (int i=0; i<len; ++i)
-        if (!strcmp(comp_command, comp_keys[i]))
-            return comp_vals[i];
-    return 0;
-}
-
-int parse_jump(char *jump_command)
-{
-    int len = sizeof(jump_vals)/sizeof(jump_vals[0]);
-
-    for (int i=0; i<len; ++i)
-        if (!strcmp(jump_command, jump_keys[i]))
-            return jump_vals[i];
-    return 0;
-}
 
 int token_lookup(char* command, int command_type)
 {
@@ -118,63 +17,6 @@ int token_lookup(char* command, int command_type)
     return 0;
 }
 
-// Function:    build_C_COMMAND
-// Description: Builds 16-bit C-instruction and assigns to `line_out`. This function
-//              sets the most significant 3 bits to `1`, then tokenizes the line, then
-//              performs lookups for each token to obtain integer equivalents, then
-//              appends these integer equivalents to `line_out` using bitwise ops.
-// Parameters: 
-//              line_in:    pointer to cleaned .asm input line
-//              line_out:   pointer to 16-character output line
-// Returns:     void
-void build_C_COMMAND(char *line_in, char *line_out)
-{
-    uint16_t out = 7;
-    int dest, comp, jump;
-    char dest_command[4] = {0};
-    char comp_command[4] = {0};
-    char jump_command[4] = {0};
-
-    tokenize(line_in, comp_command, dest_command, jump_command);
-
-    dest = parse_dest(dest_command); // TODO: consolidate three parse functions into one general parse function
-    comp = parse_comp(comp_command);
-    jump = parse_jump(jump_command);
-
-    // set output bits
-    out = 7; out <<= 7;         // set most signifiant 3 bits to 111
-    out |= comp; out <<= 3;     // set 7 comp bits
-    out |= dest; out <<= 3;     // set 3 dest bits
-    out |= jump;                // set 3 jump bits
-    itob(out, line_out, 16);    // convert to binstring
-}
-
-// Function:    initialize_symbols
-// Description: Initializes `symbols` linked list with default symbols key/value
-//              pairs.
-// Parameters:  
-//              symbols:    pointer to linked list
-// Returns:     void
-// TODO:        consider making struct that contains key and num as members,
-//              then make one array instead of two to loop through
-void initialize_symbols(LinkedList* symbols)
-{
-    // default key/value pairs for initializing symbols linkedlist
-    char* keys[]    = { 
-        "SP", "LCL", "ARG", "THIS", "THAT", "R0", "R1", "R2", "R3", "R4", 
-        "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", 
-        "R15", "SCREEN", "KBD"
-    };
-    int nums[]      = {
-        0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
-        11, 12, 13, 14, 15, 16384, 24576
-    };
-    int len         = sizeof(nums) / sizeof(nums[0]);
-
-    // populate linked list with default symbols
-    for (int i=0; i<len; ++i)
-        append(symbols, create_node(keys[i], nums[i]));
-}
 
 // Function:    ltrim
 // Description: String cleaning function that removes leading spaces and tabs
@@ -232,9 +74,22 @@ void make_output_path(char *out_path, char *in_path)
     strcpy(p, ".hack\0");           // replace .asm with .hack
 }
 
+void parse_label(char* line_in, LinkedList *symbols, int *linecount) {
+        // strip comments and trim
+        cleanline(line_in);
+
+        // add to symbols linkedlist
+        if (get_command_type(line_in) == L_COMMAND) {
+            line_in[strcspn(line_in, ")")] = '\0';
+            search(symbols, line_in + 1, *linecount);
+        } else if (line_in[0] != '\0') {
+            (*linecount)++;
+        }
+}
 
 int main(int argc, char **argv)
 {
+
     // exit if argc is not as expected
     if (argc != 2) {
         printf("usage: assembler <read path>\n");
@@ -278,12 +133,19 @@ int main(int argc, char **argv)
     LinkedList* symbols = create_linked_list();
     initialize_symbols(symbols);
     int default_val = 16; // default starting value for new symbols
+    
+
+    char dest_command[4] = {0};
+    char comp_command[4] = {0};
+    char jump_command[4] = {0};
 
     // PASS 1: parse labels
     while (fgets(line_in, sizeof line_in, fp_in) != NULL) {
 
         // TODO: parse_label(line_in, &linecount) <-- start refactoring like this
+        parse_label(line_in, symbols, &linecount);
         
+        /*
         // strip comments and trim
         cleanline(line_in);
 
@@ -294,6 +156,7 @@ int main(int argc, char **argv)
         } else if (line_in[0] != '\0') {
             linecount++;
         }
+        */
     }
 
     // PASS 2: loop through input file and parse
@@ -323,7 +186,8 @@ int main(int argc, char **argv)
                     fprintf(fp_out, "%s\n", line_out);
                     break;
                 case C_COMMAND:
-                    build_C_COMMAND(line_in, line_out);
+                    tokenize(line_in, comp_command, dest_command, jump_command);
+                    build_C_COMMAND(comp_command, dest_command, jump_command, line_out);
                     printf("%s\n", line_out);
                     fprintf(fp_out, "%s\n", line_out);
                     break;

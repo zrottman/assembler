@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "linkedlist.h"
+#include "SymbolTable.h"
 
 // Function:    create_node
 // Description: Creates a new Node struct with given key and value
@@ -109,4 +109,31 @@ int delete_node(LinkedList* linkedlist, char* target_key)
     }
 
     return -1;                  // return -1 if not found
+}
+
+// Function:    initialize_symbols
+// Description: Initializes `symbols` linked list with default symbols key/value
+//              pairs.
+// Parameters:  
+//              symbols:    pointer to linked list
+// Returns:     void
+// TODO:        consider making struct that contains key and num as members,
+//              then make one array instead of two to loop through
+void initialize_symbols(LinkedList* symbols)
+{
+    // default key/value pairs for initializing symbols linkedlist
+    char* keys[]    = { 
+        "SP", "LCL", "ARG", "THIS", "THAT", "R0", "R1", "R2", "R3", "R4", 
+        "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", 
+        "R15", "SCREEN", "KBD"
+    };
+    int nums[]      = {
+        0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
+        11, 12, 13, 14, 15, 16384, 24576
+    };
+    int len         = sizeof(nums) / sizeof(nums[0]);
+
+    // populate linked list with default symbols
+    for (int i=0; i<len; ++i)
+        append(symbols, create_node(keys[i], nums[i]));
 }

@@ -1,5 +1,5 @@
-#ifndef LINKEDLIST_H
-#define LINKEDLIST_H
+#ifndef SYMBOLTABLE_H
+#define SYMBOLTABLE_H
 
 typedef struct Node {
     char*        key;
@@ -19,5 +19,6 @@ void        print_linked_list(LinkedList* linkedlist);
 int         append(LinkedList* linkedlist, Node* new_node);
 int         search(LinkedList* linkedlist, char* target_key, int default_val);
 int         delete_node(LinkedList* linkedlist, char* target_key);
+void        initialize_symbols(LinkedList* symbols);
 
-#endif // LINKEDLIST_H
+#endif // SYMBOLTABLE_H
