@@ -383,7 +383,7 @@ The assembler must also be able to convert C Instruction tokens to their corresp
 Before using the assembler, you need to compile it. Open a terminal window and navigate to the directory containing the assembler's source code. Then, use your preferred C compiler to build the executable. For example, if you're using CC, you can use the following command:
 
 ```bash
-cc assembler.c linkedlist.c -o assembler
+cc main.c Parser.c Code.c SymbolTable.c -o assembler
 ```
 
 This will create an executable file named "assembler" in the same directory.
