@@ -65,8 +65,7 @@ int main(int argc, char **argv)
     int linecount;
 
     // instantiate symbols table
-    SymbolTable* symbols = create_symbols_table();
-    int default_val = 16; // default starting value for new symbols
+    SymbolTable* symbols = create_symbol_table();
 
     // pass 1: parse labels
     linecount = 0;
@@ -78,7 +77,7 @@ int main(int argc, char **argv)
     rewind(fp_in);
     linecount = 0;
     while (fgets(line_in, sizeof line_in, fp_in) != NULL) {
-        parse_instruction(line_in, symbols, line_out, &default_val, &linecount, fp_out);
+        parse_instruction(line_in, symbols, line_out, &linecount, fp_out);
     }
 
     // close input/output files

@@ -59,7 +59,7 @@ void parse_label(char* line_in, SymbolTable *symbols, int *linecount) {
         // add to symbols linkedlist
         if (get_command_type(line_in) == L_COMMAND) {
             line_in[strcspn(line_in, ")")] = '\0';
-            search(symbols, line_in + 1, *linecount);
+            append(symbols, create_node(line_in + 1, *linecount));
         } else if (line_in[0] != '\0') {
             (*linecount)++;
         }
@@ -106,7 +106,7 @@ void cleanline(char *line_in)
         line_in[strcspn(line_in, "\n\r ")] = '\0';
 }
 
-void parse_instruction(char* line_in, SymbolTable *symbols, char *line_out, int *default_val, int *linecount, FILE *fp_out)
+void parse_instruction(char* line_in, SymbolTable *symbols, char *line_out, int *linecount, FILE *fp_out)
 {
     char dest_command[4] = {0};
     char comp_command[4] = {0};
@@ -122,7 +122,7 @@ void parse_instruction(char* line_in, SymbolTable *symbols, char *line_out, int 
 
         switch (get_command_type(line_in)) {
             case A_COMMAND:
-                build_A_COMMAND(line_in, line_out, symbols, default_val); 
+                build_A_COMMAND(line_in, line_out, symbols); 
                 printf("%s\n", line_out);
                 fprintf(fp_out, "%s\n", line_out);
                 break;

@@ -10,17 +10,16 @@ typedef struct Node {
 typedef struct SymbolTable {
     Node*  head;
     Node*  tail;
-    size_t len;
+    size_t len; // no current implementation
     size_t default_val;
 } SymbolTable;
 
-Node*       create_node(char* key, int val);
-SymbolTable* create_linked_list(void);
-SymbolTable* create_symbols_table(void);
-void        print_linked_list(SymbolTable* linkedlist);
-int         append(SymbolTable* linkedlist, Node* new_node);
-int         search(SymbolTable* linkedlist, char* target_key, int default_val);
-int         delete_node(SymbolTable* linkedlist, char* target_key);
-void        initialize_symbols(SymbolTable* symbols);
+Node*        create_node(char* key, int val);
+SymbolTable* create_symbol_table(void);
+void         init_symbol_table(SymbolTable* symbols);
+void         print_symbol_table(SymbolTable* symbols);
+int          append(SymbolTable* symbols, Node* new_node);
+int          search(SymbolTable* symbols, char* target_key);
+int          delete_node(SymbolTable* symbols, char* target_key);
 
 #endif // SYMBOLTABLE_H

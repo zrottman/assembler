@@ -83,7 +83,6 @@ void build_C_COMMAND(char *comp_command, char *dest_command, char *jump_command,
     uint16_t out = 7;
     int dest, comp, jump;
 
-
     dest = parse_dest(dest_command); // TODO: consolidate three parse functions into one general parse function
     comp = parse_comp(comp_command);
     jump = parse_jump(jump_command);
@@ -104,20 +103,18 @@ void build_C_COMMAND(char *comp_command, char *dest_command, char *jump_command,
 //              symbols:        pointer to linked list that handles symbol lookups
 //              default_val:    default value to insert into `symbols` list on insertion
 // Returns:     void
-void build_A_COMMAND(char *line_in, char *line_out, SymbolTable *symbols, int *default_val)
+void build_A_COMMAND(char *line_in, char *line_out, SymbolTable *symbols)
 {
     uint16_t i;
 
     if ('0' <= line_in[1] && line_in[1] <= '9') { 
-        // treat `line_in` as numerical
+        // treat `line_in` as number literal
         i = atoi(line_in + 1);  // convert line[1:] to int
         i = i & 0x7fff;         // set MSB to 0 if i>32767
         itob(i, line_out, 16);  // convert i to 15+1-bit string and save to output
     } else {                                      
         // treat `line_in` as symbol
-        i = search(symbols, line_in + 1, *default_val);
-        if (i == *default_val)
-            (*default_val)++;
+        i = search(symbols, line_in + 1);
         itob(i, line_out, 16);
     }
 }
