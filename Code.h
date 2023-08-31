@@ -1,6 +1,7 @@
 #ifndef CODE_H
 #define CODE_H
 
+#include <stdint.h>
 #include "SymbolTable.h"
 
 extern const char *dest_keys[];
