@@ -380,13 +380,7 @@ The assembler must also be able to convert C Instruction tokens to their corresp
 
 ### 1. Compilation:
 
-Before using the assembler, you need to compile it. Open a terminal window and navigate to the directory containing the assembler's source code. Then, use your preferred C compiler to build the executable. For example, if you're using CC, you can use the following command:
-
-```bash
-cc main.c Parser.c Code.c SymbolTable.c -o assembler
-```
-
-This will create an executable file named "assembler" in the same directory.
+Before using the assembler, compile it using the included `makefile`. From the root directory, run `make`, which will compile the project and all its dependencies, producing a variety of object files and an executable named `assembler`.
 
 ### 2. Assembling:
 
@@ -396,11 +390,15 @@ Once the assembler has been compiled, you can use it to translate your assembly 
 ./assembler path/to/your/assembly_file.asm
 ```
 
-Replace path/to/your/assembly_file.asm with the actual path to your assembly file.
+Replace `path/to/your/assembly_file.asm` with the actual path to your assembly file.
 
 ### 3. Output:
 
-After running the above command, the assembler will process the assembly file and generate the corresponding machine code. The output will be saved to a new file with the same name as the input assembly file, but with a different extension (e.g., .hack). You can find this output file in the same directory where your assembly file is located.
+After running the above command, the assembler will process the assembly file and generate the corresponding machine code. In addition to being printed to stdout, the output will be saved to a new file with the same name as the input assembly file, but with a different extension (e.g., .hack). You can find this output file in the same directory where your assembly file is located.
+
+### 4. Clean:
+
+To remove executable and all dependent object files, run `make clean`.
 
 ## Example
 
