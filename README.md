@@ -2,7 +2,7 @@
 
 An assembler! Converts assembler language to 16-bit machine code.
 
-![Assembler in action](resources/assembler.gif)
+![Assembler in action](resources/assembler_long.gif)
 
 ## Hack Spec
 
