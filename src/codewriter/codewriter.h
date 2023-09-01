@@ -2,7 +2,7 @@
 #define CODE_H
 
 #include <stdint.h>
-#include "SymbolTable.h"
+#include "../symboltable/symboltable.h"
 
 extern const char *dest_keys[];
 extern const int   dest_vals[];

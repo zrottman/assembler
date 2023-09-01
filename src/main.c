@@ -3,9 +3,9 @@
 #include <string.h>
 #include <stdint.h>
 #include <time.h>
-#include "SymbolTable.h"
-#include "Parser.h"
-#include "Code.h"
+#include "symboltable/symboltable.h"
+#include "parser/parser.h"
+#include "codewriter/codewriter.h"
 
 #define MAXLINE 256
 

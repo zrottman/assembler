@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "SymbolTable.h"
+#include "symboltable.h"
 
 // Function:    create_node
 // Description: Creates a new Node struct with given key and value
