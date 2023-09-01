@@ -1,8 +1,8 @@
 #include <string.h>
 #include <stdio.h>
-#include "Parser.h"
-#include "SymbolTable.h"
-#include "Code.h"
+#include "parser.h"
+#include "../symboltable/symboltable.h"
+#include "../codewriter/codewriter.h"
 
 
 // Function:    get_command_type

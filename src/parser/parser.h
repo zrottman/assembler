@@ -1,8 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "SymbolTable.h"
-#include "Code.h"
+#include "../symboltable/symboltable.h"
+#include "../codewriter/codewriter.h"
 
 enum { A_COMMAND, C_COMMAND, L_COMMAND, JUMP, COMP, DEST };
 
