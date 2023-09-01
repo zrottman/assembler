@@ -1,8 +1,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "Code.h"
-#include "SymbolTable.h"
+#include "codewriter.h"
+#include "../symboltable/symboltable.h"
 
 const char *dest_keys[] = { "M", "D", "MD", "A", "AM", "AD", "AMD" };
 const int   dest_vals[] = { 1, 2, 3, 4, 5, 6, 7 };
