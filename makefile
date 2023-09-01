@@ -1,17 +1,17 @@
-assembler : main.o parser.o code.o symboltable.o
-	cc -o assembler main.o parser.o code.o symboltable.o
+assembler : main.o parser.o codewriter.o symboltable.o
+	cc -o assembler main.o parser.o codewriter.o symboltable.o
 
-main.o : main.c SymbolTable.h Parser.h Code.h
-	cc -c main.c
+main.o : src/main.c src/symboltable/symboltable.h src/parser/parser.h src/codewriter/codewriter.h
+	cc -c src/main.c
 
-parser.o : Parser.c SymbolTable.h Parser.h Code.h
-	cc -c Parser.c
+parser.o : src/parser/parser.c src/symboltable/symboltable.h src/parser/parser.h src/codewriter/codewriter.h
+	cc -c src/parser/parser.c
 
-code.o : Code.c Code.h SymbolTable.h
-	cc -c Code.c
+codewriter.o : src/codewriter/codewriter.c src/codewriter/codewriter.h src/symboltable/symboltable.h
+	cc -c src/codewriter/codewriter.c
 
-symboltable.o : SymbolTable.c SymbolTable.h
-	cc -c SymbolTable.c
+symboltable.o : src/symboltable/symboltable.c src/symboltable/symboltable.h
+	cc -c src/symboltable/symboltable.c
 
 clean :
-	rm assembler main.o parser.o code.o symboltable.o
+	rm assembler main.o parser.o codewriter.o symboltable.o
