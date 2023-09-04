@@ -45,6 +45,10 @@ int parse_comp(char *comp_command)
         if (!strcmp(comp_command, comp_keys[i]))
             return comp_vals[i];
     return 0;
+
+    /*
+     * TODO: parse(*comp_command, comp_keys, comp_vals);
+     */
 }
 
 int parse_jump(char *jump_command)

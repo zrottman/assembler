@@ -17,7 +17,7 @@
 // Returns:     void
 void make_output_path(char *out_path, char *in_path)
 {
-    char *p;
+    char *p = NULL;
 
     strcpy(out_path, in_path);      // copy argv[1] to out_path
     p = strrchr(out_path, '.');     // get location of file extension
@@ -27,14 +27,22 @@ void make_output_path(char *out_path, char *in_path)
 
 int main(int argc, char **argv)
 {
+    FILE *fp_in, *fp_out;
+
+    clock_t start, end;
+    double cpu_time_used;
+
+    char out_path[100]; 
+
+    char line_in[MAXLINE];
+    char line_out[17] = {0};
+    int linecount;
 
     // exit if argc is not as expected
     if (argc != 2) {
-        printf("usage: assembler <read path>\n");
+        printf("usage: ./assembler <read path>\n");
         return EXIT_FAILURE; // macro defined in stdlib.h
     }
-
-    FILE *fp_in, *fp_out;
     
     // open input file and check for errors
     fp_in = fopen(argv[1], "r"); 
@@ -44,12 +52,9 @@ int main(int argc, char **argv)
     }
 
     // start clock
-    clock_t start, end;
-    double cpu_time_used;
     start = clock();
 
     // create output file path, open, and check for errors 
-    char out_path[100]; 
     make_output_path(out_path, argv[1]);
     fp_out = fopen(out_path, "w");
     if (fp_in == NULL) {
@@ -59,10 +64,6 @@ int main(int argc, char **argv)
 
     // print output file name at top of file
     // fprintf(fp_out, "//.hack translation of %s\n", argv[1]);
-
-    char line_in[MAXLINE];
-    char line_out[17] = {0};
-    int linecount;
 
     // instantiate symbols table
     SymbolTable* symbols = create_symbol_table();

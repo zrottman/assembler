@@ -113,27 +113,27 @@ void parse_instruction(char* line_in, SymbolTable *symbols, char *line_out, int 
     // strip comments and trim
     cleanline(line_in);
 
-    // process non-blank lines
-    if (line_in[0] != '\0') {
+    // exit on blank line
+    if (line_in[0] == '\0') { return; }
+    
+    // print line_in
+    printf("%2d: %15s --> ", (*linecount)++, line_in); 
 
-        printf("%2d: %15s --> ", (*linecount)++, line_in); // print line_in
-
-        switch (get_command_type(line_in)) {
-            case A_COMMAND:
-                build_A_COMMAND(line_in, line_out, symbols); 
-                printf("%s\n", line_out);
-                fprintf(fp_out, "%s\n", line_out);
-                break;
-            case C_COMMAND:
-                tokenize(line_in, comp_command, dest_command, jump_command);
-                build_C_COMMAND(comp_command, dest_command, jump_command, line_out);
-                printf("%s\n", line_out);
-                fprintf(fp_out, "%s\n", line_out);
-                break;
-            case L_COMMAND:
-                (*linecount)--;
-                printf("\n");
-                break;
-        }
+    switch (get_command_type(line_in)) {
+        case A_COMMAND:
+            build_A_COMMAND(line_in, line_out, symbols); 
+            printf("%s\n", line_out);
+            fprintf(fp_out, "%s\n", line_out);
+            break;
+        case C_COMMAND:
+            tokenize(line_in, comp_command, dest_command, jump_command);
+            build_C_COMMAND(comp_command, dest_command, jump_command, line_out);
+            printf("%s\n", line_out);
+            fprintf(fp_out, "%s\n", line_out);
+            break;
+        case L_COMMAND:
+            (*linecount)--;
+            printf("\n");
+            break;
     }
 }
