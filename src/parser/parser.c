@@ -1,8 +1,6 @@
 #include <string.h>
 #include <stdio.h>
 #include "parser.h"
-#include "../symboltable/symboltable.h"
-#include "../codewriter/codewriter.h"
 
 
 // Function:    get_command_type
