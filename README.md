@@ -1,6 +1,6 @@
 # Assembler
 
-An assembler! Converts assembler language to 16-bit machine code.
+An assembler! Converts assembly language to 16-bit machine code.
 
 ![Assembler in action](resources/assembler_long.gif)
 
